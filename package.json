@@ -1,0 +1,27 @@
+{
+  "name": "adventofcode2019",
+  "version": "1.0.0",
+  "description": "My TS solutions to adventfcode.cpm 2019",
+  "main": "index.js",
+  "dependencies": {
+    "prettier": "^1.19.1",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oddbytes/adventofcode2019.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oddbytes/adventofcode2019/issues"
+  },
+  "homepage": "https://github.com/oddbytes/adventofcode2019#readme"
+}
