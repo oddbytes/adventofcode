@@ -1,4 +1,6 @@
-import { day2Part1Program, IntcodeComputer } from "./day2Part1";
+import { IntcodeComputer } from "./intcodeComputer";
+import { program } from "./program";
+
 const expectedOutput = 19690720;
 const computer = new IntcodeComputer();
 
@@ -10,13 +12,12 @@ let verb = -1;
 
 while (output !== expectedOutput && noun > -1) {
   while (output !== expectedOutput && verb < 100) {
-    day2Part1Program[1] = noun;
-    day2Part1Program[2] = verb;
-    output = computer.execute(day2Part1Program)[0];
-    console.log(`Noun:${noun} Verb:${verb} Output:${output}`);
+    program[1] = noun;
+    program[2] = verb;
+    output = computer.execute(program)[0];
 
     if (output == expectedOutput) {
-      console.log(computer.execute(day2Part1Program)[0]);
+      console.log(`Noun:${noun} Verb:${verb} Output:${output}`);
     }
     verb++;
   }
