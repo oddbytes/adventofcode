@@ -1,4 +1,4 @@
-/*export const wire1 = [
+export const wire1 = [
   "R1000",
   "U573",
   "L25",
@@ -603,7 +603,7 @@ export const wire2 = [
   "R741",
   "U641",
   "L135"
-];*/
+];
 
 /*export const wire1 = [
   "R75",
@@ -617,7 +617,7 @@ export const wire2 = [
   "L72"
 ];
 export const wire2 = ["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];*/
-
+/*
 export const wire1 = [
   "R98",
   "U47",
@@ -643,6 +643,6 @@ export const wire2 = [
   "U6",
   "R7"
 ];
-
+*/
 // export const wire1 = ["L8", "D5", "R5", "U3"];
 // export const wire2 = ["D7", "L6", "U4", "R4"];
