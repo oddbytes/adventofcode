@@ -9,39 +9,37 @@ export class PasswordGenerator {
     const validPasswords: number[] = [];
     while (currentPassword < this.maxRange + 1) {
       let valid = false;
+      const digits = Array.from(currentPassword.toString());
       // 1 - Two adjacent digits are the same
-      for (let position = 0; position < 5; position++) {
-        if (
-          this.getDigit(currentPassword, position) ==
-          this.getDigit(currentPassword, position + 1)
-        ) {
+      valid = digits.some((digit, index) => digit == digits[index + 1]);
+
+      /* Equivalent for (let position = 0; position < 5; position++) {
+        if (digits[position] == digits[position + 1]) {
           valid = true;
           break;
         }
-      }
+      }*/
 
       // 2 -Going from left to right, the digits never decrease; they only ever increase or stay the same (like 111123 or 135679)
-      if (valid == true) {
-        for (let position = 0; position < 5; position++) {
-          if (
-            this.getDigit(currentPassword, position + 1) <
-            this.getDigit(currentPassword, position)
-          ) {
-            valid = false;
-          }
+      if (valid) {
+        valid =
+          valid && !digits.some((digit, index) => digits[index + 1] < digit);
+      }
+
+      /*EQUIVALENT 
+      for (let position = 0; position < 5; position++) {
+        if (digits[position + 1] < digits[position]) {
+          valid = false;
         }
-        if (valid == true) {
-          validPasswords.push(currentPassword);
-        }
+      }*/
+
+      if (valid) {
+        validPasswords.push(currentPassword);
       }
 
       currentPassword++;
     }
     return validPasswords;
-  }
-
-  private getDigit(cipher: number, position: number): number {
-    return parseInt(cipher.toString()[position]);
   }
 
   /**
@@ -52,15 +50,9 @@ export class PasswordGenerator {
   public filter(passwords: number[]): number[] {
     const validPasswords: number[] = [];
     passwords.forEach(password => {
-      let valid = false;
-      const digits = [0, 1, 2, 3, 4, 5].map(pos =>
-        this.getDigit(password, pos)
-      );
-      // Some digit repeats ONLY  TWICE
-      digits.forEach(d => {
-        valid = valid || digits.filter(d1 => d1 == d).length == 2;
-      });
-      if (valid) {
+      const digits = Array.from(password.toString());
+      // valid if any digit repeats ONLY  TWICE
+      if (digits.some(d => digits.filter(d1 => d1 == d).length == 2)) {
         validPasswords.push(password);
       }
     });

@@ -1,5 +1,5 @@
-import { program } from "./program";
 import { IntcodeComputer } from "./intcodeComputer";
+import { program } from "./program";
 
 const computer = new IntcodeComputer();
 // Prepare main program
