@@ -14,7 +14,7 @@ while (output !== expectedOutput && noun > -1) {
   while (output !== expectedOutput && verb < 100) {
     program[1] = noun;
     program[2] = verb;
-    output = computer.execute(program)[0];
+    output = computer.execute(program).program[0];
 
     if (output == expectedOutput) {
       console.log(`Noun:${noun} Verb:${verb} Output:${output}`);

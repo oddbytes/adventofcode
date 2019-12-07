@@ -1,7 +1,7 @@
 /**
  * Defines an executable program
  */
-interface IExecutableProgram {
+interface IProgramState {
   /**
    * instruction codes
    */
@@ -13,11 +13,33 @@ interface IExecutableProgram {
   /**
    * input values for code 3
    */
-  input?: number[];
+  options?: IProgramOptions;
   /**
    * current input value
    */
   inputPointer: number;
+  /**
+   * current output
+   */
+  output: number[];
+}
+
+export interface IProgramResults {
+  /**
+   * Resulting program code
+   */
+  program: number[];
+  /**
+   * Outputs
+   */
+  output: number[];
+
+  exitCode: number;
+}
+
+export interface IProgramOptions {
+  input?: number[];
+  suspendOnOutput?: boolean;
 }
 
 enum ParameterMode {
@@ -25,17 +47,36 @@ enum ParameterMode {
   inmediate = 1
 }
 
+export enum ComputerStatus {
+  idle = 0,
+  suspended = -2
+}
+
 /**
  * Implements an Intcode computer as detailed in https://adventofcode.com/2019/day/2 and day/5
  */
 export class IntcodeComputer {
+  private executableProgram: IProgramState = null;
+  public status: ComputerStatus = 0;
+  // Why doesn't the computer work if the executable program is initialized in constructor?
+  //constructor(program: number[], options?: IProgramOptions) {
+  //   this.executableProgram = {
+  //     program: Object.assign([], program),
+  //     instructionPointer: 0,
+  //     options: options ?? { input: [], suspendOnOutput: false },
+  //     inputPointer: 0
+  //   };
+  // }
+
   /**
-   * Executes one step of the program. Exit code: 0=OK, -1=ERROR, 99=END;
-   * @param program Full program
-   * @param instructionPointer Step number
+   * Executes one step of the program. Exit code: 0=OK, -1=ERROR, -2=SUSPENDED, 99=END;
+   * @param executableProgram
+   * @param output current program output Step number
    */
-  private executeInstruction(executableProgram: IExecutableProgram) {
+  private executeInstruction(): number {
+    const executableProgram = this.executableProgram;
     const { program, instructionPointer } = executableProgram;
+
     let instructionCode = program[instructionPointer];
 
     let parameter1Mode: ParameterMode;
@@ -43,7 +84,7 @@ export class IntcodeComputer {
     let parameter3Mode: ParameterMode;
 
     if (instructionCode == 99) {
-      console.log(`HALT.`);
+      this.status = 99;
       return 99;
     }
     // Determine instruction type
@@ -88,13 +129,17 @@ export class IntcodeComputer {
       }
       case 3: {
         program[parameter1] =
-          executableProgram.input[executableProgram.inputPointer++];
+          executableProgram.options.input[executableProgram.inputPointer++];
         executableProgram.instructionPointer += 2;
+
         break;
       }
       case 4: {
-        console.log(`Diag output:${program[parameter1]}  (0=correct)`);
+        //console.log(`Diag output:${program[parameter1]}  (0=correct)`);
+        executableProgram.output.push(program[parameter1]);
         executableProgram.instructionPointer += 2;
+        this.status = -2;
+        if (executableProgram.options?.suspendOnOutput) return -2;
         break;
       }
       case 5: {
@@ -140,24 +185,46 @@ export class IntcodeComputer {
   }
 
   /**
-   * Executes the program (doesn't mutate original). Return new matrix
+   * Executes the program (doesn't mutate original). Returns modified program
    * @param program program to execute
    */
-  public execute(program: number[], input?: number[]): number[] {
-    const executableProgram: IExecutableProgram = {
+  public execute(program, options?: IProgramOptions): IProgramResults {
+    //Initialize state
+    this.executableProgram = {
       program: Object.assign([], program),
       instructionPointer: 0,
-      input,
-      inputPointer: 0
+      options: options ?? { input: [], suspendOnOutput: false },
+      inputPointer: 0,
+      output: []
     };
+    return this.run();
+  }
 
+  /**
+   * Executes instructions till halt (99) or output (4) and suspendOnOutput flag is set
+   */
+
+  private run() {
     let exitCode = 0;
     while (
       exitCode === 0 &&
-      executableProgram.instructionPointer < executableProgram.program.length
+      this.executableProgram.instructionPointer <
+        this.executableProgram.program.length
     ) {
-      exitCode = this.executeInstruction(executableProgram);
+      exitCode = this.executeInstruction();
     }
-    return executableProgram.program;
+    return {
+      program: this.executableProgram.program,
+      output: this.executableProgram.output,
+      exitCode
+    };
+  }
+  /**
+   * Resumes execution of a suspended program ( with programOptions.suspendOnOutput=true)
+   * @param input Aditional input to add to existing one before resuming execution
+   */
+  public resume(input?: number[]) {
+    if (input) this.executableProgram.options.input.push(...input);
+    return this.run();
   }
 }
