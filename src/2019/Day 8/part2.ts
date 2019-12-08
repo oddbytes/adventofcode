@@ -2,15 +2,15 @@ import { ImageDecoder } from "./imageDecoder";
 import { imageStream } from "./imagestream";
 
 var imageDecoder = new ImageDecoder(imageStream, 25, 6);
-const layers = imageDecoder.getLayers();
+const image = imageDecoder.getImage();
 
-const layer = imageDecoder.decodeImage(layers);
+const composedImage = imageDecoder.composeImage(image);
 
 //Make decoded image it readable
-for (let index = 0; index < layer.height; index++)
+for (let index = 0; index < composedImage.height; index++)
   console.log(
-    layer.bytes
-      .slice(index * layer.width, (index + 1) * layer.width)
+    composedImage.layers[0].bytes
+      .slice(index * composedImage.width, (index + 1) * composedImage.width)
       .join("")
       .replace(/1/g, "*")
       .replace(/0/g, " ")

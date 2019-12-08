@@ -10,7 +10,7 @@ const digitCount = (array: number[], digit: number): number =>
   array.reduce((accum, byte) => (byte == digit ? accum + 1 : accum), 0);
 
 var imageDecoder = new ImageDecoder(imageStream, 25, 6);
-const layers = imageDecoder.getLayers();
+const layers = imageDecoder.getImage().layers;
 // the layer that contains the fewest 0 digits
 const layer0 = layers.sort(
   (a, b) => digitCount(a.bytes, 0) - digitCount(b.bytes, 0)
