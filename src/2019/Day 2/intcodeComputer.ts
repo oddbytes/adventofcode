@@ -22,6 +22,10 @@ interface IProgramState {
    * current output
    */
   output: number[];
+  /**
+   *  current relative base for parameters using relative mode
+   */
+  relativeBase: number;
 }
 
 export interface IProgramResults {
@@ -44,7 +48,11 @@ export interface IProgramOptions {
 
 enum ParameterMode {
   position = 0,
-  inmediate = 1
+  inmediate = 1,
+  /**
+   * relative mode behave very similarly to parameters in position mode: the parameter is interpreted as a position but from a given base
+   */
+  relative = 2
 }
 
 export enum ComputerStatus {
@@ -59,7 +67,7 @@ export class IntcodeComputer {
   private executableProgram: IProgramState = null;
   public status: ComputerStatus = 0;
   // Why doesn't the computer work if the executable program is initialized in constructor?
-  //constructor(program: number[], options?: IProgramOptions) {
+  // constructor(program: number[], options?: IProgramOptions) {
   //   this.executableProgram = {
   //     program: Object.assign([], program),
   //     instructionPointer: 0,
@@ -104,30 +112,40 @@ export class IntcodeComputer {
     const parameter1 =
       parameter1Mode == ParameterMode.position
         ? program[instructionPointer + 1]
-        : instructionPointer + 1;
+        : parameter1Mode == ParameterMode.inmediate
+        ? instructionPointer + 1
+        : executableProgram.relativeBase + program[instructionPointer + 1];
 
     const parameter2 =
       parameter2Mode == ParameterMode.position
         ? program[instructionPointer + 2]
-        : instructionPointer + 2;
+        : parameter2Mode == ParameterMode.inmediate
+        ? instructionPointer + 2
+        : executableProgram.relativeBase + program[instructionPointer + 2];
 
     const parameter3 =
       parameter3Mode == ParameterMode.position
         ? program[instructionPointer + 3]
-        : instructionPointer + 3;
+        : parameter3Mode == ParameterMode.inmediate
+        ? instructionPointer + 3
+        : executableProgram.relativeBase + program[instructionPointer + 3];
 
     switch (instructionCode) {
       case 1: {
+        this.checkMemoryAccess(program, [parameter1, parameter2, parameter3]);
         program[parameter3] = program[parameter2] + program[parameter1];
         executableProgram.instructionPointer += 4;
         break;
       }
       case 2: {
+        this.checkMemoryAccess(program, [parameter1, parameter2, parameter3]);
         program[parameter3] = program[parameter2] * program[parameter1];
         executableProgram.instructionPointer += 4;
         break;
       }
       case 3: {
+        // read an input
+
         program[parameter1] =
           executableProgram.options.input[executableProgram.inputPointer++];
         executableProgram.instructionPointer += 2;
@@ -135,15 +153,19 @@ export class IntcodeComputer {
         break;
       }
       case 4: {
-        //console.log(`Diag output:${program[parameter1]}  (0=correct)`);
+        // writes an output
+        this.checkMemoryAccess(program, [parameter1]);
         executableProgram.output.push(program[parameter1]);
         executableProgram.instructionPointer += 2;
         this.status = -2;
-        if (executableProgram.options?.suspendOnOutput) return -2;
+        if (executableProgram.options?.suspendOnOutput) {
+          return -2;
+        }
         break;
       }
       case 5: {
         // jump-if-true: if the first parameter is non-zero, it sets the instruction pointer to the value from the second parameter.
+        this.checkMemoryAccess(program, [parameter1, parameter2]);
         if (program[parameter1] !== 0) {
           executableProgram.instructionPointer = program[parameter2];
         } else {
@@ -153,6 +175,7 @@ export class IntcodeComputer {
       }
       case 6: {
         // jump-if-false: if the first parameter is zero, it sets the instruction pointer to the value from the second parameter.
+        this.checkMemoryAccess(program, [parameter1, parameter2]);
         if (program[parameter1] === 0) {
           executableProgram.instructionPointer = program[parameter2];
         } else {
@@ -163,7 +186,7 @@ export class IntcodeComputer {
 
       case 7: {
         // if the first parameter is less than the second parameter, it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
-
+        this.checkMemoryAccess(program, [parameter1, parameter2, parameter3]);
         program[parameter3] = program[parameter1] < program[parameter2] ? 1 : 0;
         executableProgram.instructionPointer += 4;
 
@@ -172,16 +195,34 @@ export class IntcodeComputer {
 
       case 8: {
         // if the first parameter is equal to the second parameter, it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
-
+        this.checkMemoryAccess(program, [parameter1, parameter2, parameter3]);
         program[parameter3] =
           program[parameter1] === program[parameter2] ? 1 : 0;
         executableProgram.instructionPointer += 4;
 
         break;
       }
+
+      case 9: {
+        // adjusts the relative base by the value of its only parameter.
+        this.checkMemoryAccess(program, [parameter1]);
+        executableProgram.relativeBase += program[parameter1];
+        executableProgram.instructionPointer += 2;
+      }
     }
 
     return 0;
+  }
+
+  private checkMemoryAccess(program: number[], addresses: number[]) {
+    addresses.forEach(address => {
+      if (address < 0) {
+        throw new Error("Invalid memory access, negative address");
+      }
+      if (program[address] == undefined) {
+        program[address] = 0;
+      }
+    });
   }
 
   /**
@@ -189,13 +230,14 @@ export class IntcodeComputer {
    * @param program program to execute
    */
   public execute(program, options?: IProgramOptions): IProgramResults {
-    //Initialize state
+    // Initialize state
     this.executableProgram = {
       program: Object.assign([], program),
       instructionPointer: 0,
       options: options ?? { input: [], suspendOnOutput: false },
       inputPointer: 0,
-      output: []
+      output: [],
+      relativeBase: 0
     };
     return this.run();
   }
@@ -224,7 +266,9 @@ export class IntcodeComputer {
    * @param input Aditional input to add to existing one before resuming execution
    */
   public resume(input?: number[]) {
-    if (input) this.executableProgram.options.input.push(...input);
+    if (input) {
+      this.executableProgram.options.input.push(...input);
+    }
     return this.run();
   }
 }
