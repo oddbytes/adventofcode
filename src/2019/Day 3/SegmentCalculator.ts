@@ -30,23 +30,31 @@ export class Segment implements ISegment {
 
   constructor(start: IPoint, end: IPoint) {
     if (start.y === end.y) {
-      //horizontal
+      // horizontal
       this.start.x = Math.min(start.x, end.x);
       this.end.x = Math.max(start.x, end.x);
       this.start.y = this.end.y = start.y;
-    }
-    if (start.x === end.x) {
-      //horizontal
+    } else if (start.x === end.x) {
+      // horizontal
       this.start.y = Math.min(start.y, end.y);
       this.end.y = Math.max(start.y, end.y);
       this.start.x = this.end.x = start.x;
+    } else {
+      // other segment
+      this.start = start;
+      this.end = end;
     }
   }
 
   get length(): number {
-    return this.isHorizontal
-      ? this.end.x - this.start.x
-      : this.end.y - this.start.y;
+    if (this.isHorizontal) {
+      return this.end.x - this.start.x;
+    } else if (this.isVertical) {
+      return this.end.y - this.start.y;
+    } else {
+      // Pending-> length of a segment with inclination!=0 && !=90
+      return 1;
+    }
   }
   get isHorizontal(): boolean {
     return this.start.y === this.end.y;
@@ -63,22 +71,44 @@ export class Segment implements ISegment {
         point.x <= this.end.x &&
         point.y == this.start.y
       );
-    }
-
-    if (this.isVertical) {
+    } else if (this.isVertical) {
       return (
         point.y >= this.start.y &&
         point.y <= this.end.y &&
         point.x == this.start.x
       );
-    }
+    } else {
+      // "cross-product" of vectors start -> pount and start -> end.
+      const dxc = point.x - this.start.x;
+      const dyc = point.y - this.start.y;
 
-    throw new Error("Invalid Segment, not horizontal or vertical");
+      const dxl = this.end.x - this.start.x;
+      const dyl = this.end.y - this.start.y;
+
+      const cross = dxc * dyl - dyc * dxl;
+
+      // Point lies on the line if and only if cross is equal to zero.
+      if (cross != 0) {
+        return false;
+      }
+
+      // lies between the original points?
+      // This can be easily done by comparing the x coordinates, if the line is "more horizontal than vertical", or y coordinates otherwise
+      if (Math.abs(dxl) >= Math.abs(dyl)) {
+        return dxl > 0
+          ? this.start.x <= point.x && point.x <= this.end.x
+          : this.end.x <= point.x && point.x <= this.start.x;
+      } else {
+        return dyl > 0
+          ? this.start.y <= point.y && point.y <= this.end.y
+          : this.end.y <= point.y && point.y <= this.start.y;
+      }
+    }
   }
 }
 
 export class SegmentCalculator {
-  public getSegments(wire: string[]): ISegment[] {
+  public getWireSegments(wire: string[]): ISegment[] {
     let currX = 0;
     let currY = 0;
     return wire.map(s => {

@@ -1,11 +1,11 @@
 import { IntersectionCalculator } from "./IntersectionCalculator";
 import { SegmentCalculator } from "./SegmentCalculator";
-import { wire1, wire2 } from "./wires";
 import { StepsCalculator } from "./StepsCalculator";
+import { wire1, wire2 } from "./wires";
 
 const segmentCalculator = new SegmentCalculator();
-const segments1 = segmentCalculator.getSegments(wire1);
-const segments2 = segmentCalculator.getSegments(wire2);
+const segments1 = segmentCalculator.getWireSegments(wire1);
+const segments2 = segmentCalculator.getWireSegments(wire2);
 
 const intersectionCalculator = new IntersectionCalculator();
 
@@ -20,14 +20,14 @@ intersectionPoints.forEach(ip =>
 
 const stepsCalculator = new StepsCalculator();
 
-//Follow first wire
+// Follow first wire
 const d1 = stepsCalculator.distanceToFirstIntersection(
   segments1,
   segments2,
   intersectionPoints
 );
 console.log("Following first wire:", d1);
-//Following second wire
+// Following second wire
 const d2 = stepsCalculator.distanceToFirstIntersection(
   segments2,
   segments1,

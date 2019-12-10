@@ -3,8 +3,8 @@ import { SegmentCalculator } from "./SegmentCalculator";
 import { wire1, wire2 } from "./wires";
 
 const segmentCalculator = new SegmentCalculator();
-const segments1 = segmentCalculator.getSegments(wire1);
-const segments2 = segmentCalculator.getSegments(wire2);
+const segments1 = segmentCalculator.getWireSegments(wire1);
+const segments2 = segmentCalculator.getWireSegments(wire2);
 
 const intersectionCalculator = new IntersectionCalculator();
 const intersectionPoints = intersectionCalculator.getInstersections(
