@@ -1,159 +1,62 @@
 import { IPoint, Point, Segment } from "../Day 3/SegmentCalculator";
 import { map } from "./map";
 
-enum FireSector {
-  up = 0,
-  right = 1,
-  down = 2,
-  left = 3
-}
+// invert y coordinate to match diamon angle calculations (left, bottom)
+const stationCoordinates: IPoint = new Point(31, -20);
 
-const multiplicator = 10;
-
-// const stationCoordinates: IPoint = new Point(31, 20);
-const stationCoordinates: IPoint = new Point(
-  8 * multiplicator,
-  3 * multiplicator
-);
-// const stationCoordinates: IPoint = new Point(
-//   11 * multiplicator,
-//   13 * multiplicator
-// );
 const asteroidCoordinates = map
   .map((line, row) => {
     return Array.from(line).map((char, col) =>
-      char === "#" ? new Point(col * multiplicator, row * multiplicator) : null
+      char === "#" ? new Point(col, -row) : null
     );
   })
   .reduce((a, b) => a.concat(b)) // flat
   .filter(p => p != null);
 
-// get map dimensions
+const asteroidVectors = asteroidCoordinates
+  .map(asteroidCoords => ({
+    vector: new Segment(stationCoordinates, asteroidCoords),
+    destroyOrder: 0
+  }))
+  .filter(a => a.vector.length > 0)
+  .sort((a, b) => b.vector.diamondAngle - a.vector.diamondAngle);
 
-const mapWidth = map[0].length * multiplicator * 5;
-const mapHeight = map.length * multiplicator * 5;
+//sort by diamond angle 4 to 0 (descending)
 
-// Let put the station in the center
-// mapWidth += stationCoordinates.x - (mapWidth - stationCoordinates.x);
-
-let fireSector: FireSector = FireSector.up;
-
-// start rotating and firing!
-
+// Diamond angle
+//       1
+//       |
+//    2--+--0
+//       |
+//       3
+//Find first asteroid in diamon angle 1
+let currentIndex = asteroidVectors.findIndex(a => a.vector.diamondAngle == 1);
 let destroyedAsteroids = 0;
-let asteroidtoDestroy = null;
-
-const angle = 90;
-
-const pointInCircle = (
-  center: IPoint,
-  radius: number,
-  angleInDegrees: number
-): IPoint =>
-  new Point(
-    center.x +
-      Math.trunc(radius * Math.cos((angleInDegrees * Math.PI) / 180.0)),
-    center.y - Math.trunc(radius * Math.sin((angleInDegrees * Math.PI) / 180.0))
+//Destr0y them ALL!!!
+while (asteroidVectors.some(a => a.destroyOrder == 0)) {
+  //from all asteroids in that angle,destroy the closest
+  const currentAngle = asteroidVectors[currentIndex].vector.diamondAngle;
+  const asteroidtoDestroy = asteroidVectors
+    .filter(a => a.vector.diamondAngle == currentAngle && a.destroyOrder == 0)
+    .sort((a, b) => a.vector.length - b.vector.length)[0];
+  asteroidtoDestroy.destroyOrder = ++destroyedAsteroids;
+  console.log(
+    `${asteroidtoDestroy.destroyOrder}@${
+      asteroidtoDestroy.vector.end.x
+    },${-asteroidtoDestroy.vector.end.y}`
   );
-const laserTarget = new Point(stationCoordinates.x, 0);
-console.log(
-  `Station @ ${stationCoordinates.x},${stationCoordinates.y}  Map width:${mapWidth}  Height:${mapHeight}`
-);
-while (destroyedAsteroids < 200 && asteroidCoordinates.length > 1) {
-  // Segment from station to laser
-  // const laserTarget = pointInCircle(stationCoordinates, mapHeight, angle);
-
-  const laserSegment = new Segment(stationCoordinates, laserTarget);
-  // Find asteroid in laserSegment
-  const asteroidsInFireLine = asteroidCoordinates.filter(asteroidCoord =>
-    laserSegment.containsPoint(asteroidCoord)
+  currentIndex = asteroidVectors.findIndex(
+    a => a.vector.diamondAngle < currentAngle && a.destroyOrder == 0
   );
-
-  asteroidtoDestroy = null;
-  if (asteroidsInFireLine.length > 1) {
-    // Find closest asteroid
-    const closestAsteroid = asteroidsInFireLine
-      .map(coordinates => ({
-        coordinates,
-        distance:
-          Math.abs(stationCoordinates.x - coordinates.x) +
-          Math.abs(stationCoordinates.y - coordinates.y)
-      }))
-      .filter(asteroid => asteroid.distance > 0) // dont destroy the base!!
-      .sort((a, b) => a.distance - b.distance)[0];
-
-    // Destroy!
-
-    asteroidtoDestroy = asteroidCoordinates.find(
-      a => closestAsteroid.coordinates == a
+  if (currentIndex == -1)
+    currentIndex = asteroidVectors.findIndex(
+      a => a.vector.diamondAngle < 4 && a.destroyOrder == 0
     );
-
-    asteroidCoordinates.splice(
-      asteroidCoordinates.indexOf(asteroidtoDestroy),
-      1
-    );
-
-    destroyedAsteroids += 1;
-  }
-  if (asteroidtoDestroy) {
-    console.log(
-      // `Target: ${laserTarget.x} ${laserTarget.y} Destroy ${asteroidtoDestroy.x},${asteroidtoDestroy.y} Destroyed:${destroyedAsteroids}`
-      `${destroyedAsteroids} @${asteroidtoDestroy.x /
-        multiplicator},${asteroidtoDestroy.y / multiplicator} Target: ${
-        laserTarget.x
-      },${laserTarget.y}  Firesector:${fireSector} Left asteroids:${
-        asteroidCoordinates.length
-      }`
-    );
-  }
-  // rotate gun
-  //   if (++angle > 360) {
-  //     angle = 0;
-  //   }
-  switch (fireSector) {
-    case FireSector.up: {
-      if (++laserTarget.x > mapWidth) {
-        fireSector = FireSector.right;
-        laserTarget.x = mapWidth + 1;
-        laserTarget.y = 1;
-        console.log("Firesector change:" + fireSector);
-      }
-
-      break;
-    }
-    case FireSector.right: {
-      if (++laserTarget.y > mapHeight) {
-        fireSector = FireSector.down;
-        laserTarget.y = mapHeight + 1;
-        laserTarget.x = mapWidth - 1;
-        console.log("Firesector change:" + fireSector);
-      }
-
-      break;
-    }
-    case FireSector.down: {
-      if (--laserTarget.x < 0) {
-        fireSector = FireSector.left;
-        laserTarget.x = 0;
-        laserTarget.y = mapHeight - 1;
-        console.log("Firesector change:" + fireSector);
-      }
-
-      break;
-    }
-    case FireSector.left: {
-      if (--laserTarget.y < 0) {
-        fireSector = FireSector.up;
-        laserTarget.y = 0;
-        laserTarget.x = 1;
-        console.log("Firesector change:" + fireSector);
-      }
-
-      break;
-    }
-  }
 }
 
+const asteroid200 = asteroidVectors.find(a => a.destroyOrder == 200);
 console.log(
-  `200th destroyed asteroid:${asteroidtoDestroy.x} ${asteroidtoDestroy.y}`
+  `200th destroyed asteroid:${asteroid200.vector.end.x} ${-asteroid200.vector
+    .end.y}, response to puzzle ${asteroid200.vector.end.x * 100 +
+    -asteroid200.vector.end.y}`
 );
