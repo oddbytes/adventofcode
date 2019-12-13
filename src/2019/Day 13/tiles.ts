@@ -31,7 +31,7 @@ export class Tile implements ITile {
       case TileType.block:
         return "▒";
       case TileType.paddle:
-        return "-";
+        return "═";
     }
     return " ";
   }

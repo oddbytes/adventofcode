@@ -15,7 +15,7 @@ First, non-working attempt: calculate how many cycle takes each moon to return t
 */
 
 const moons = startingPositions.map(
-  pos => new Moon(new Point3D(pos.x, pos.y, pos.z), 0)
+  pos => new Moon(new Point3D(pos.x, pos.y, pos.z))
 );
 
 const axisCycles = new Point3D(-1, -1, -1);
