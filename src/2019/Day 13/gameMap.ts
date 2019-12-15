@@ -44,4 +44,32 @@ export class GameMap {
     }
     return screen;
   }
+
+  public renderUncomplete(tiles: ITile[], includeWalls?: boolean): string {
+    if (includeWalls == undefined) includeWalls = true;
+    let maxY = Math.max(...tiles.map(t => t.position.y));
+    let minY = Math.min(...tiles.map(t => t.position.y));
+
+    let maxX = Math.max(...tiles.map(t => t.position.x));
+    let minX = Math.min(...tiles.map(t => t.position.x));
+
+    if (!includeWalls) {
+      maxY--;
+      minY++;
+      maxX--;
+    }
+    let screen = "";
+    for (let row = maxY; row >= minY; row--) {
+      let line = "";
+      for (let col = minX; col <= maxX; col++) {
+        const tile = tiles.find(
+          t => t.position.x == col && t.position.y == row
+        );
+        if (row == 0 && col == 0) line += "S";
+        else line += tile ? tile.symbol : "U";
+      }
+      screen += line + "\n";
+    }
+    return screen;
+  }
 }
