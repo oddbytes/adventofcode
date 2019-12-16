@@ -1,12 +1,7 @@
+import { Element, ElementProduction, IElement } from "./element";
 import { reactions } from "./reactions";
-import {
-  Element,
-  IElement,
-  ElementProduction,
-  IElementProduction
-} from "./element";
 
-//Import reactions
+// Import reactions
 const elementsProduction = reactions.map(reaction => {
   // 7 PZDPS, 18 HGDHV, 9 TBKM => 4 JHVL
   const myRegexp: RegExp = /((\d+)\s(.+?))(,|\=\>|$)/g;
@@ -30,7 +25,7 @@ const elementsProduction = reactions.map(reaction => {
 const getBasicElements = (element: IElement, units: number): IElement[] => {
   const packages = Math.ceil(units / element.units);
 
-  //replace a element childs by its simplest
+  // replace a element childs by its simplest
   if (element.producedBy[0].name == "ORE") {
     return [new Element(element.name, units)];
   }
@@ -39,7 +34,7 @@ const getBasicElements = (element: IElement, units: number): IElement[] => {
       const eroot = elementsProduction.find(ep => ep.element.name == child.name)
         .element;
 
-      //const packages = Math.ceil(child.units / eroot.units);
+      // const packages = Math.ceil(child.units / eroot.units);
       return getBasicElements(eroot, packages * child.units);
     })
     .reduce((a, b) => a.concat(b));

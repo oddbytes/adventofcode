@@ -46,12 +46,14 @@ export class GameMap {
   }
 
   public renderUncomplete(tiles: ITile[], includeWalls?: boolean): string {
-    if (includeWalls == undefined) includeWalls = true;
+    if (includeWalls == undefined) {
+      includeWalls = true;
+    }
     let maxY = Math.max(...tiles.map(t => t.position.y));
     let minY = Math.min(...tiles.map(t => t.position.y));
 
     let maxX = Math.max(...tiles.map(t => t.position.x));
-    let minX = Math.min(...tiles.map(t => t.position.x));
+    const minX = Math.min(...tiles.map(t => t.position.x));
 
     if (!includeWalls) {
       maxY--;
@@ -65,8 +67,11 @@ export class GameMap {
         const tile = tiles.find(
           t => t.position.x == col && t.position.y == row
         );
-        if (row == 0 && col == 0) line += "S";
-        else line += tile ? tile.symbol : "U";
+        if (row == 0 && col == 0) {
+          line += "S";
+        } else {
+          line += tile ? tile.symbol : "U";
+        }
       }
       screen += line + "\n";
     }

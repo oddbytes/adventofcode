@@ -1,16 +1,16 @@
 import { IntcodeComputer, IProgramOptions } from "../Day 2/intcodeComputer";
-import { Point, IPoint } from "../Day 3/SegmentCalculator";
+import { IPoint, Point } from "../Day 3/SegmentCalculator";
 import { GameMap } from "./gameMap";
 import { gameProgram } from "./gameProgram";
-import { ITile, Tile, TileType } from "./tiles";
 import { Direction } from "./joystick";
+import { ITile, Tile, TileType } from "./tiles";
 
 const gameMap = new GameMap();
 
 const computer = new IntcodeComputer();
 const options: IProgramOptions = {
   suspendOnOutput: true,
-  input: [0] //initial joystick position
+  input: [0] // initial joystick position
 };
 
 gameProgram[0] = 2;
@@ -18,10 +18,10 @@ let program = computer.execute(gameProgram, options);
 let score = 0;
 let moveCount = 0;
 
-let ballPosition: IPoint = new Point(0, 0);
-const ballPositions: IPoint[] = []; //ball position history. We don't really need this, just the previous one, but lets store it just in case we want to save a replay video
+const ballPosition: IPoint = new Point(0, 0);
+const ballPositions: IPoint[] = []; // ball position history. We don't really need this, just the previous one, but lets store it just in case we want to save a replay video
 
-let currentPaddlePosition: IPoint = new Point(0, 0);
+const currentPaddlePosition: IPoint = new Point(0, 0);
 const tiles: ITile[] = [];
 let ballDirection: Direction = Direction.neutral;
 
@@ -29,10 +29,10 @@ let rightWallX: number = -1;
 
 while (program.exitCode != 99) {
   let joystickDirection: Direction;
-  program = computer.resume(); //get second output parmam
-  program = computer.resume(); //get third output param
+  program = computer.resume(); // get second output parmam
+  program = computer.resume(); // get third output param
   if (program.output[program.output.length - 3] == -1) {
-    score = program.output[program.output.length - 1]; //score update
+    score = program.output[program.output.length - 1]; // score update
     console.log(`Score: ${score}`);
     if (score == 0) {
       rightWallX = Math.max(...tiles.map(t => t.position.x));
@@ -43,27 +43,34 @@ while (program.exitCode != 99) {
       case TileType.ball: {
         ballPosition.x = program.output[program.output.length - 3];
         ballPosition.y = program.output[program.output.length - 2];
-        if (ballPositions.length > 0)
+        if (ballPositions.length > 0) {
           ballDirection =
             ballPosition.x > ballPositions[ballPositions.length - 1].x
               ? Direction.right
               : Direction.left;
+        }
         if (
           currentPaddlePosition.x > -1 &&
           ballDirection != Direction.neutral
         ) {
-          //We know where the paddle is and the ball direction,calculate target
+          // We know where the paddle is and the ball direction,calculate target
           let paddleTargetX =
             ballDirection == Direction.right ? ballPosition.x : ballPosition.x;
-          //Correct walls
-          if (paddleTargetX < 1) paddleTargetX = 1;
-          if (paddleTargetX > rightWallX - 1) paddleTargetX = rightWallX - 1;
+          // Correct walls
+          if (paddleTargetX < 1) {
+            paddleTargetX = 1;
+          }
+          if (paddleTargetX > rightWallX - 1) {
+            paddleTargetX = rightWallX - 1;
+          }
           joystickDirection = Direction.neutral;
 
-          if (currentPaddlePosition.x > paddleTargetX)
+          if (currentPaddlePosition.x > paddleTargetX) {
             joystickDirection = Direction.left;
-          if (currentPaddlePosition.x < paddleTargetX)
+          }
+          if (currentPaddlePosition.x < paddleTargetX) {
             joystickDirection = Direction.right;
+          }
 
           console.log(
             `${moveCount} Ball: ${ballPosition.x},${ballPosition.y} Dir: ${ballDirection} Paddle:${currentPaddlePosition.x},${currentPaddlePosition.y} target: ${paddleTargetX} Move:${joystickDirection}`
@@ -72,8 +79,9 @@ while (program.exitCode != 99) {
           if (
             ballPosition.x == currentPaddlePosition.x + joystickDirection &&
             ballPosition.y == currentPaddlePosition.y - 1
-          )
+          ) {
             console.log("Bong!");
+          }
         } else {
           console.log(
             `${moveCount} Ball: ${ballPosition.x},${ballPosition.y} Dir: ${ballDirection} Paddle:${currentPaddlePosition.x},${currentPaddlePosition.y} Move: NO MOVE`
@@ -100,14 +108,15 @@ while (program.exitCode != 99) {
             t.position.y == program.output[program.output.length - 2]
         );
         if (tile) {
-          if (tile.type == TileType.block)
+          if (tile.type == TileType.block) {
             console.log(
               `Block destroyed @ ${program.output[program.output.length - 3]},${
                 program.output[program.output.length - 2]
               }`
             );
+          }
           tile.type = program.output[program.output.length - 1];
-        } else
+        } else {
           tiles.push(
             new Tile(
               new Point(
@@ -117,6 +126,7 @@ while (program.exitCode != 99) {
               program.output[program.output.length - 1]
             )
           );
+        }
       }
     }
   }
@@ -132,15 +142,18 @@ while (program.exitCode != 99) {
 const ballTiles: ITile[] = [];
 ballPositions.forEach(b => {
   const tile = tiles.find(t => t.position.x == b.x && t.position.y == b.y);
-  if (tile) tile.type = TileType.ball;
-  else ballTiles.push(new Tile(b, TileType.ball));
+  if (tile) {
+    tile.type = TileType.ball;
+  } else {
+    ballTiles.push(new Tile(b, TileType.ball));
+  }
 });
 
-const tile = tiles.find(
+const paddleTile = tiles.find(
   t =>
     t.position.x == currentPaddlePosition.x &&
     t.position.y == currentPaddlePosition.y
 );
-tile.type = TileType.paddle;
+paddleTile.type = TileType.paddle;
 
 console.log(gameMap.render(tiles.concat(ballTiles)));

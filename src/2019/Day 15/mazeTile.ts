@@ -1,4 +1,4 @@
-import { ITile, TileType, Tile } from "../Day 13/tiles";
+import { ITile, Tile } from "../Day 13/tiles";
 
 export interface IMazeTile extends ITile {
   visited: boolean;
