@@ -145,8 +145,12 @@ export class IntcodeComputer {
       }
       case 3: {
         // read an input
-        if (executableProgram.inputPointer>executableProgram.options.input.length)
-        throw "Input read error: no input available at pos" + executableProgram.inputPointer
+        if (
+          executableProgram.inputPointer >
+          executableProgram.options.input.length - 1
+        )
+          throw "Input read error: no input available at pos" +
+            executableProgram.inputPointer;
 
         program[parameter1] =
           executableProgram.options.input[executableProgram.inputPointer++];

@@ -1,146 +1,35 @@
 import { GameMap } from "../Day 13/gameMap";
-import { TileType } from "../Day 13/tiles";
 import { Direction } from "../Day 15/maze";
-import { IMazeTile, MazeTile } from "../Day 15/mazeTile";
-import { SignalCleaner } from "../Day 16/signalCleaner";
-import { IntcodeComputer } from "../Day 2/intcodeComputer";
-import { IPoint, Point } from "../Day 3/SegmentCalculator";
+import { IntcodeComputer, IProgramOptions } from "../Day 2/intcodeComputer";
 import { program } from "./program";
+import { ScaffoldMapper, IMovement } from "./scaffoldMapper";
 
-const computer = new IntcodeComputer();
-
-let mapX = 0;
-let mapY = 0;
-const tiles: IMazeTile[] = computer
-  .execute(program)
-  .output.map(char => {
-    if (char == 10) {
-      mapY += 1; // new line
-      mapX = 0;
-      return undefined;
-    } else {
-      return new MazeTile(
-        new Point(mapX++, mapY),
-        char === 35
-          ? TileType.block
-          : char === 46
-          ? TileType.empty
-          : TileType.ball
-      );
-    }
-  })
-  .filter(t => t !== undefined);
-
+const scaffoldMapper = new ScaffoldMapper(program);
+const tiles = scaffoldMapper.getScaffoldTiles();
 // draw map
 const gameMap = new GameMap();
 console.log(gameMap.render(tiles));
 
 // lets go through the scaffold
 
-// reuse some of the code of maze mapper (day 15)
+const movements = scaffoldMapper.getScaffoldMovemetns(tiles);
+console.log(`movements:${movements.join(",")}`);
 
-const turnRight = (lastDirection: Direction): Direction => {
-  if (lastDirection == Direction.north) {
-    return Direction.east;
-  }
-  if (lastDirection == Direction.east) {
-    return Direction.south;
-  }
-  if (lastDirection == Direction.south) {
-    return Direction.west;
-  }
-
-  return Direction.north;
-};
-
-const getRequestedPosition = (
-  position: IPoint,
-  direction: Direction
-): IPoint => {
-  const { x, y } = position;
-  switch (direction) {
-    case Direction.north:
-      return new Point(x, y - 1);
-    case Direction.south:
-      return new Point(x, y + 1);
-    case Direction.east:
-      return new Point(x + 1, y);
-    case Direction.west:
-      return new Point(x - 1, y);
-  }
-};
-
-const isReverse = (direction1: Direction, direction2: Direction): boolean => {
-  return direction1 + direction2 == 3 || direction1 + direction2 == 7;
-};
-const getTileAtPost = (pos: IPoint): IMazeTile =>
-  tiles.find(t => t.position.x == pos.x && t.position.y == pos.y);
-
-const movements: number[] = [];
-
-const robotPos = tiles.find(t => t.type == TileType.ball);
-robotPos.visited = true;
-let { position: currentPos } = robotPos;
-let currentDir = Direction.west;
-
-let newPos = getRequestedPosition(currentPos, currentDir);
-let turns = 0;
-let move = 0;
-let tileNewPos = getTileAtPost(newPos);
-while (!(tileNewPos?.type == TileType.empty && turns > 2)) {
-  turns = 0;
-  console.log(
-    `Pos:${currentPos.x},${currentPos.y} heading:${currentDir}   try newPos: ${newPos.x},${newPos.y}, type: ${tileNewPos?.symbol}(${tileNewPos?.type})`
-  );
-
-  const lastDir = currentDir;
-  while (
-    (tileNewPos?.type == TileType.empty && turns < 3) ||
-    tileNewPos == undefined
-  ) {
-    currentDir = turnRight(currentDir);
-    if (!isReverse(currentDir, lastDir)) {
-      // dont go back!
-      newPos = getRequestedPosition(currentPos, currentDir);
-      turns++;
-      tileNewPos = getTileAtPost(newPos);
-    }
-  }
-  move++;
-  if (turns > 0) {
-    console.log(`\tnew heading:${currentDir}`);
-    movements.push(move);
-    move = 0;
-  }
-
-  currentPos = new Point(newPos.x, newPos.y);
-  newPos = getRequestedPosition(currentPos, currentDir);
-
-  if (tileNewPos) {
-    if (tileNewPos?.visited == true) {
-      tileNewPos.type = TileType.wall;
-    } else {
-      tileNewPos.visited = true;
-    }
-  }
-  tileNewPos = getTileAtPost(newPos);
-}
-console.log(`End at ${currentPos.x},${currentPos.y}`);
-movements[0] -= 1;
-let sMovements = movements.join(",");
-console.log(`movements:${sMovements}`);
-
-// Identify patterns in movements
-
-const patterns: number[][] = [];
-
-for (let i = 0; i < 3; i++) {
+/**
+ * Returns the longest pattern found
+ * @param movements
+ * @param maxLength
+ */
+const getPattern = (
+  movements: IMovement[],
+  maxLength?: number
+): IMovement[] => {
   let currLength = 2;
   // slice the movements in currLength pieces and compare them to the first one
-  let parts: number[][] = [];
-
+  let parts: IMovement[][] = [];
+  if (!maxLength) maxLength = Number.MAX_VALUE;
   let equalParts = 1;
-  while (equalParts > 0) {
+  while (equalParts > 0 && currLength <= maxLength) {
     parts = [];
     let currIndex = currLength;
     while (currIndex < movements.length) {
@@ -151,46 +40,177 @@ for (let i = 0; i < 3; i++) {
       (acum, part, currentIndex) =>
         currentIndex > 0 &&
         part.length == currLength &&
-        part.every((p, i) => p == movements[i])
+        part.map(p => p.steps).every((p, i) => p == movements[i].steps)
           ? (acum += 1)
           : acum,
       0
     );
     currLength++;
   }
-  patterns.push(movements.slice(0, currLength - 2));
-  console.log(patterns[patterns.length - 1].join(","));
-  movements.splice(0, currLength - 2);
-}
+  return currLength > maxLength + 1
+    ? []
+    : movements.slice(
+        0,
+        maxLength == Number.MAX_VALUE ? currLength - 2 : maxLength
+      );
+};
 
-return;
+/**
+ * Return a new array with the specified pattern deleted
+ */
+const deletePattern = (
+  movements: IMovement[],
+  pattern: IMovement[]
+): IMovement[] => {
+  const moves = Object.assign([], movements);
 
-for (let i = 0; i < 3; i++) {
-  let currLength = 2; // at least twop steps
-
-  let groups: string[] = ["1", "2"];
-  let lastGroup: string;
-  while (groups.length > 0) {
-    const groupRegex = new RegExp(sMovements.substr(0, currLength), "g");
-    groups = [];
-
-    let match = groupRegex.exec(sMovements);
-    while (match != null) {
-      if (match.index > currLength) {
-        groups.push(match.toString());
-        lastGroup = groups[groups.length - 1];
-      }
-      match = groupRegex.exec(sMovements);
+  let currIndex = moves.length - pattern.length;
+  while (currIndex > -1) {
+    const chunk = movements.slice(currIndex, currIndex + pattern.length);
+    if (chunk.map(m => m.steps).every((d, i) => d == pattern[i].steps)) {
+      moves.splice(currIndex, pattern.length);
+      currIndex -= pattern.length - 1;
     }
-    currLength++;
+    currIndex--;
   }
-  let pattern = lastGroup;
-  pattern = pattern.substr(0, pattern.lastIndexOf(","));
-  patterns.push(pattern);
-  let re = new RegExp(pattern, "g");
-  sMovements = sMovements.replace(re, "");
-  re = new RegExp("^,|,$", "g");
-  while (sMovements[0] == "," || sMovements[sMovements.length - 1] == ",") {
-    sMovements = sMovements.replace(re, "");
+
+  return moves;
+};
+
+/**
+ * Finds a number of repetitive patterns in the given movements
+ * @param movements
+ * @param maxPattens
+ */
+const findPatterns = (
+  movements: IMovement[],
+  maxPattens: number
+): IMovement[][] => {
+  // Identify patterns in movements
+  const patterns: IMovement[][] = [];
+  let patternsToFind = 0;
+  let moves = Object.assign([], movements);
+  let currentMaxLength = Number.MAX_VALUE;
+  while (patternsToFind < maxPattens) {
+    const pattern = getPattern(moves, currentMaxLength);
+    const nextPattern = deletePattern(moves, pattern);
+    //try next step, if it is posible to find a pattern
+    if (getPattern(nextPattern).length > 1 || nextPattern.length == 0) {
+      patterns.push(pattern);
+      moves = nextPattern;
+      currentMaxLength = Number.MAX_VALUE;
+      patternsToFind++;
+    } else {
+      currentMaxLength = pattern.length - 1;
+    }
   }
-}
+  return patterns;
+};
+
+/**
+ * Identifies the passed patterns as A,B or C in the sequence
+ * @param movements
+ * @param patterns
+ */
+const mapPatterns = (movements: IMovement[], patterns: IMovement[][]) => {
+  const moves = Object.assign([], movements);
+  let patternIndex = 0;
+  let patternOrder: number[] = [];
+
+  while (moves.length > 0 && patternIndex < patterns.length) {
+    if (
+      patterns[patternIndex]
+        .map(p => p.steps)
+        .every((d, i) => d == moves[i].steps)
+    ) {
+      patternOrder.push(patternIndex);
+      moves.splice(0, patterns[patternIndex].length);
+      patternIndex = -1;
+    }
+    patternIndex++;
+  }
+
+  return patternOrder.map(p => 65 + p);
+};
+
+const getTurn = (move: IMovement, lastMove: IMovement): number => {
+  //R 82 L 76
+  const newDir = move.direction;
+  let lastdir = lastMove?.direction;
+  if (!lastdir) {
+    lastdir = Direction.north;
+  }
+  return (lastdir == Direction.north && newDir == Direction.east) ||
+    (lastdir == Direction.east && newDir == Direction.south) ||
+    (lastdir == Direction.south && newDir == Direction.west) ||
+    (lastdir == Direction.west && newDir == Direction.north)
+    ? 82
+    : 76;
+};
+
+const getMoves = (num: number): number[] => {
+  return Array.from(num.toString()).map(c => 48 + parseInt(c));
+};
+const programRobot = (
+  movements: IMovement[],
+  patterns: IMovement[][],
+  mappedPatterns: number[]
+) => {
+  const computer = new IntcodeComputer();
+  //start program
+  program[0] = 2;
+
+  //1 main movement routin
+
+  const programOptions: IProgramOptions = {
+    suspendOnOutput: true,
+    input: []
+  };
+  const main = mappedPatterns.map(m => [m, 44]).flat();
+  main[main.length - 1] = 10;
+
+  const functions = [];
+  // functions
+  for (let p = 0; p < patterns.length; p++) {
+    functions.push(
+      patterns[p]
+        .map((movement, index, moves) => [
+          getTurn(movement, moves[index - 1]),
+          44,
+          movement.steps < 10 ? 48 + movement.steps : getMoves(movement.steps),
+          44
+        ])
+        .flat()
+        .flat()
+    );
+    const f = functions[functions.length - 1];
+    f[f.length - 1] = 10;
+  }
+
+  let execResult = computer.execute(program, programOptions);
+  while (execResult.exitCode != 99) {
+    const output = execResult.output.map(c => String.fromCharCode(c)).join("");
+    let input;
+    if (output.endsWith("Main:")) {
+      input = main;
+    }
+    if (output.endsWith("A:")) input = functions[0];
+    if (output.endsWith("B:")) input = functions[1];
+    if (output.endsWith("C:")) input = functions[2];
+    if (output.endsWith("feed?")) input = [110, 10];
+
+    console.log(output);
+
+    execResult = computer.resume(input);
+  }
+
+  console.log(
+    "Dust collected:" + execResult.output[execResult.output.length - 1]
+  );
+};
+
+const patterns = findPatterns(movements, 3);
+//ABBCBCBCAA
+const mappedPatterns = mapPatterns(movements, patterns);
+
+programRobot(movements, patterns, mappedPatterns);
