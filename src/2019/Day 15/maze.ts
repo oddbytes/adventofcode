@@ -1,8 +1,8 @@
-import { IntcodeComputer, IProgramOptions } from "../Day 2/intcodeComputer";
-import { Point, IPoint } from "../Day 3/SegmentCalculator";
-import { IMazeTile, MazeTile } from "./mazeTile";
 import { GameMap } from "../Day 13/gameMap";
 import { TileType } from "../Day 13/tiles";
+import { IntcodeComputer, IProgramOptions } from "../Day 2/intcodeComputer";
+import { IPoint, Point } from "../Day 3/SegmentCalculator";
+import { IMazeTile, MazeTile } from "./mazeTile";
 
 export enum Direction {
   north = 1,
@@ -35,29 +35,41 @@ export class MazeMapper {
   };
 
   private turnRight = (lastDirection: Direction): Direction => {
-    if (lastDirection == Direction.north) return Direction.east;
-    if (lastDirection == Direction.east) return Direction.south;
-    if (lastDirection == Direction.south) return Direction.west;
+    if (lastDirection == Direction.north) {
+      return Direction.east;
+    }
+    if (lastDirection == Direction.east) {
+      return Direction.south;
+    }
+    if (lastDirection == Direction.south) {
+      return Direction.west;
+    }
 
     return Direction.north;
   };
 
   private turnLeft = (lastDirection: Direction): Direction => {
-    if (lastDirection == Direction.north) return Direction.west;
-    if (lastDirection == Direction.east) return Direction.north;
-    if (lastDirection == Direction.south) return Direction.east;
+    if (lastDirection == Direction.north) {
+      return Direction.west;
+    }
+    if (lastDirection == Direction.east) {
+      return Direction.north;
+    }
+    if (lastDirection == Direction.south) {
+      return Direction.east;
+    }
     return Direction.south;
   };
 
   public getMap(program: number[]): IMazeTile[] {
-    let gameMap = new GameMap();
+    const gameMap = new GameMap();
     let execResult = this.computer.execute(program, this.options);
     let robotPosition = new Point(0, 0);
     const map: IMazeTile[] = [];
 
     while (
       execResult.output[execResult.output.length - 1] != 2 ||
-      gameMap.renderUncomplete(map, false).match(/U/g).length > 10 //random guess
+      gameMap.renderUncomplete(map, false).match(/U/g).length > 10 // random guess
     ) {
       //   console.log(
       //     `\nRobot at ${robotPosition.x},${robotPosition.y}, moving ${
@@ -81,7 +93,7 @@ export class MazeMapper {
 
       let nextDirection;
       if (execResult.output[execResult.output.length - 1] == 0) {
-        //wall
+        // wall
         map.push(new MazeTile(requestedPosition, TileType.wall));
         nextDirection = this.turnLeft(
           this.options.input[this.options.input.length - 1]

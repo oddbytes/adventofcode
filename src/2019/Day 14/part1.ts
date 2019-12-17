@@ -1,7 +1,8 @@
+import { Element, ElementProduction, IElement } from "./element";
 import { reactions } from "./reactions";
 import { Element, IElement, ElementProduction } from "./element";
 
-//Import reactions
+// Import reactions
 const elementsProduction = reactions.map(reaction => {
   // 7 PZDPS, 18 HGDHV, 9 TBKM => 4 JHVL
   const myRegexp: RegExp = /((\d+)\s(.+?))(,|\=\>|$)/g;
