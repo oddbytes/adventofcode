@@ -1,10 +1,5 @@
 import { reactions } from "./reactions";
-import {
-  Element,
-  IElement,
-  ElementProduction,
-  IElementProduction
-} from "./element";
+import { Element, IElement, ElementProduction } from "./element";
 
 //Import reactions
 const elementsProduction = reactions.map(reaction => {
@@ -28,8 +23,6 @@ const elementsProduction = reactions.map(reaction => {
 });
 
 const getBasicElements = (element: IElement, units: number): IElement[] => {
-  const packages = Math.ceil(units / element.units);
-
   //replace a element childs by its simplest
   if (element.producedBy[0].name == "ORE") {
     return [new Element(element.name, units)];
@@ -38,20 +31,21 @@ const getBasicElements = (element: IElement, units: number): IElement[] => {
     .map(child => {
       const eroot = elementsProduction.find(ep => ep.element.name == child.name)
         .element;
+      const packages = Math.ceil(units / element.units);
 
-      //const packages = Math.ceil(child.units / eroot.units);
       return getBasicElements(eroot, packages * child.units);
     })
-    .reduce((a, b) => a.concat(b));
+    .flat();
 };
 
 const fuel = elementsProduction.find(e => e.element.name === "FUEL");
 const basicElements = getBasicElements(fuel.element, 1);
+
 const names = basicElements
   .map(e => e.name)
   .filter((n, i, a) => a.indexOf(n) == i)
   .sort();
-
+//a
 const totalOre = names.reduce((a, name) => {
   const element = elementsProduction.find(e => e.element.name == name).element;
   const neededUnits = basicElements
@@ -59,14 +53,15 @@ const totalOre = names.reduce((a, name) => {
     .reduce((ac, el) => ac + el.units, 0);
 
   const packages = Math.ceil(neededUnits / element.units);
-  const unitsRequired = packages * element.units;
+  const unitProduced = packages * element.units;
   console.log(
-    `${neededUnits} of ${name} in pck of ${packages} total ${unitsRequired}, ${(unitsRequired /
-      element.units) *
+    `${neededUnits} of ${name} in ${packages} pck of ${
+      element.units
+    }  (${unitProduced} in all packages), ${(unitProduced / element.units) *
       element.producedBy[0].units} ORE`
   );
 
-  return a + (unitsRequired / element.units) * element.producedBy[0].units;
+  return a + (unitProduced / element.units) * element.producedBy[0].units;
 }, 0);
 
 console.log(totalOre);

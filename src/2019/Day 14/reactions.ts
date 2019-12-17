@@ -60,7 +60,7 @@ export const reactions = [
   "    1 PLGS, 7 TBKM => 8 LVDN"
 ];
 
-export const reactions = [
+export const reactions1 = [
   "10 ORE => 10 A",
   "1 ORE => 1 B",
   "7 A, 1 B => 1 C",
@@ -68,7 +68,7 @@ export const reactions = [
   "7 A, 1 D => 1 E",
   "7 A, 1 E => 1 FUEL"
 ];
-export const reactions = [
+export const reactions1 = [
   "9 ORE => 2 A",
   "8 ORE => 3 B",
   "7 ORE => 5 C",
@@ -78,7 +78,7 @@ export const reactions = [
   "2 AB, 3 BC, 4 CA => 1 FUEL"
 ];
 
-export const reactions4 = [
+export const reactions1 = [
   "157 ORE => 5 NZVS",
   "165 ORE => 6 DCFZ",
   "44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL",
@@ -112,7 +112,7 @@ export const reactions1 = [
   "3 AB => 1 FUEL"
 ];
 
-export const reactions2 = [
+export const reactions1 = [
   "171 ORE => 8 CNZTR",
   "7 ZLQW, 3 BMBT, 9 XCVML, 26 XMNCP, 1 WPTQ, 2 MZWV, 1 RJRHP => 4 PLWSL",
   "114 ORE => 4 BHXH",
