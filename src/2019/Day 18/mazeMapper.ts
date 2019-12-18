@@ -16,8 +16,6 @@ class QueueNode implements IQueueNode {
 export class MazeMapper {
   constructor(public mazeInput: string[]) {}
 
-  private doors: IMazeTile[] = [];
-  private keys: IMazeTile[] = [];
   public getRequestedPosition = (
     position: IPoint,
     direction: Direction
@@ -74,13 +72,14 @@ export class MazeMapper {
         case "@":
           return TileType.ball;
       }
-      return TileType.block;
+      return char.toUpperCase() == char ? TileType.wall : TileType.empty;
     };
+
     for (let row = this.mazeInput.length - 1; row > -1; row--) {
       Array.from(this.mazeInput[row]).forEach((char, col) => {
         const tile = new MazeTile(new Point(col, row), getTileType(char));
-        if (tile.type == TileType.block) {
-          if (char.toUpperCase() == char) {
+        if (char.charCodeAt(0) > 64) {
+          if (char.charCodeAt(0) < 97) {
             tile.door = char;
           } else {
             tile.key = char;
@@ -94,11 +93,21 @@ export class MazeMapper {
   }
 
   public doorsInRange(maze: IMazeTile[], src: IPoint) {
-    if (this.doors.length == 0) {
-      this.doors = maze.filter(t => t.door);
-    }
+    const doors = maze.filter(t => t.door);
 
-    return this.doors.filter(door => this.getMinDistance(maze, src, door) > -1);
+    return doors.filter(door => {
+      door.distance = this.getMinDistance(maze, src, door);
+      return door.distance > -1;
+    });
+  }
+
+  public keysInRange(maze: IMazeTile[], src: IPoint) {
+    const keys = maze.filter(t => t.key);
+
+    return keys.filter(key => {
+      key.distance = this.getMinDistance(maze, src, key);
+      return key.distance > -1;
+    });
   }
 
   public getMinDistance = (
@@ -106,9 +115,15 @@ export class MazeMapper {
     src: IPoint,
     dest: IMazeTile
   ): number => {
+    const isDoor = dest.door != undefined;
     // init tiles
-    maze.forEach(t => t.visited == false);
+    maze.forEach(t => (t.visited = false));
+
+    //make dest tile "walkable" if it's a door
+    if (isDoor) dest.type = TileType.empty;
+
     // mark src tile as visited
+
     maze.find(
       t => t.position.x == src.x && t.position.y == src.y
     ).visited = true;
@@ -124,6 +139,7 @@ export class MazeMapper {
       // If we have reached the destination cell,
       // we are done
       if (pt.x == dest.position.x && pt.y == dest.position.y) {
+        if (isDoor) dest.type = TileType.wall;
         return curr.dist;
       }
 
@@ -139,7 +155,6 @@ export class MazeMapper {
         );
         if (
           adjacentTile?.type !== TileType.wall &&
-          (!adjacentTile?.door || !adjacentTile?.door == dest.door) &&
           adjacentTile?.visited == false
         ) {
           adjacentTile.visited = true;
@@ -147,6 +162,8 @@ export class MazeMapper {
         }
       }
     }
+    if (isDoor) dest.type = TileType.wall;
+
     return -1;
   };
 }

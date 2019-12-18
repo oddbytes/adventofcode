@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@types/mathjs": "^6.0.2",
+    "deepcopy": "^2.0.0",
     "mathjs": "^6.2.5",
     "prettier": "^1.19.1",
     "tslint": "^5.20.1",
