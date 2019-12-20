@@ -1,10 +1,10 @@
+import * as deepcopy from "deepcopy";
 import { GameMap } from "../Day 13/gameMap";
-import { TileType, ITile } from "../Day 13/tiles";
+import { ITile, TileType } from "../Day 13/tiles";
+import { IPoint } from "../Day 3/SegmentCalculator";
 import { maze } from "./maze";
 import { MazeMapper } from "./mazeMapper";
 import { IMazeTile } from "./mazeTile";
-import * as deepcopy from "deepcopy";
-import { IPoint } from "../Day 3/SegmentCalculator";
 
 const mazeMapper = new MazeMapper(maze);
 const tiles = mazeMapper.getMap();
@@ -15,64 +15,81 @@ console.log(gameMap.render(tiles));
 interface ISequence {
   keys: string[];
   steps: number;
+  no: number;
 }
 
-const sequences: ISequence[] = [];
+/**
+ *  Recoge la llave mas cercana desde la posicion actual y continua a por la siguiente
+ */
 
 const getKey = (
-  tiles: IMazeTile[],
+  currentMap: IMazeTile[],
   keyTile: IMazeTile,
-  sequence: ISequence,
-  currentPos: IPoint
-): ISequence => {
-  sequence.steps += mazeMapper.getMinDistance(tiles, currentPos, keyTile);
+  currentPos: IPoint,
+  sequence: ISequence
+): ISequence[] => {
+  keyTile = currentMap.find(t => t.key == keyTile.key);
+  sequence.steps += mazeMapper.getMinDistance(currentMap, currentPos, keyTile);
+
+  sequence.keys.push(keyTile.key);
+  // console.log(
+  //   `${currentPos.x},${currentPos.y} -> ${keyTile.position.x},${
+  //     keyTile.position.y
+  //   }  - (${sequence.no}) ${sequence.keys.join(",")}`
+  // );
   currentPos.x = keyTile.position.x;
   currentPos.y = keyTile.position.y;
-  sequences.keys.push(keyTilekey.key);
-  const doorPos = tiles.find(t => t.door == keyTile.key.toUpperCase());
+  const doorPos = currentMap.find(t => t.door == keyTile.key.toUpperCase());
   if (doorPos) {
-    //open the door
+    // open the door
     doorPos.door = undefined;
     doorPos.type = TileType.empty;
   }
   keyTile.key = undefined;
+
+  // A por las siguientes llaves
+  const keysInRange = mazeMapper
+    .keysInRange(currentMap, currentPos)
+    .sort((k1, k2) => (k1.key > k2.key ? 1 : k1.key < k2.key ? -1 : 0));
+
+  const seqs = [].concat(
+    keysInRange.map(k => {
+      const s = deepcopy(sequence);
+      const m: IMazeTile[] = deepcopy(currentMap);
+      const nk = m.find(
+        m => m.position.x == k.position.x && m.position.y == k.position.y
+      );
+      return getKey(m, nk, currentPos, s);
+    })
+  );
+  return deepcopy(sequence);
 };
 
-const trySecuence = (tiles: IMazeTile[], sequences: ISequence[]): ISequence => {
+const getKeys = (tiles: IMazeTile[]) => {
   let currentPos = tiles.find(t => t.type == TileType.ball).position;
-  let steps = 0;
-  let key = 0;
-  const keys: string[] = [];
-  while (tiles.filter(t => t.key).length > 0) {
-    //While ther are keys
-    const keysInRange = mazeMapper.keysInRange(tiles, currentPos);
-    const possibleKeys = keysInRange.sort((k1, k2) =>
-      k1.key > k2.key ? 1 : k1.key < k2.key ? -1 : 0
+  const keysInRange = mazeMapper
+    .keysInRange(tiles, currentPos)
+    .sort((k1, k2) => (k1.key > k2.key ? 1 : k1.key < k2.key ? -1 : 0));
+  let sequences: ISequence[] = [];
+  const t = keysInRange.slice(0, 1).map((k, i) => {
+    const tilesCopy = deepcopy(tiles);
+    currentPos = tiles.find(t => t.type == TileType.ball).position;
+    return sequences.concat(
+      getKey(tilesCopy, k, currentPos, { steps: 0, keys: [], no: i })
     );
-    let keyIndex = 0;
-    while (
-      sequences
-        .map(s => s.keys.slice(0, key + 1).join(""))
-        .includes(keys.join("") + possibleKeys[keyIndex].key) &&
-      keyIndex < possibleKeys.length - 1
-    )
-      keyIndex++;
+  });
+  sequences = sequences.concat(t.flat());
 
-    //¿condicion de fin aqui?
-    if (keyIndex > possibleKeys.length - 1) return undefined;
-
-    key++;
-  }
-  console.log(`Sequence: ${keys.join(",")} steps:${steps}`);
-
-  return { keys, steps };
+  console.log(sequences);
 };
 
-let tilesCopy = deepcopy(tiles);
-
+const tilesCopy = deepcopy(tiles);
+/*
 let sequence = trySecuence(tilesCopy, sequences);
 while (sequence) {
   sequences.push(sequence);
   tilesCopy = deepcopy(tiles);
   sequence = trySecuence(tilesCopy, sequences);
-}
+}*/
+
+const r = getKeys(tilesCopy);
