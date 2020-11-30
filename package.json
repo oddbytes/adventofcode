@@ -1,30 +1,33 @@
 {
-  "name": "adventofcode2019",
+  "name": "adventofcode",
   "version": "1.0.0",
-  "description": "My TS solutions to adventfcode.cpm 2019",
+  "description": "My TS solutions to adventfcode.xom",
   "main": "index.js",
   "dependencies": {
-    "@types/mathjs": "^6.0.2",
     "deepcopy": "^2.0.0",
-    "mathjs": "^6.2.5",
-    "prettier": "^1.19.1",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.7.2"
+    "mathjs": "^6.2.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/mathjs": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.8.2",
+    "@typescript-eslint/parser": "^4.8.2",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.15.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.1.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oddbytes/adventofcode2019.git"
+    "url": "git+https://github.com/oddbytes/adventofcode.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/oddbytes/adventofcode2019/issues"
+    "url": "https://github.com/oddbytes/adventofcode/issues"
   },
-  "homepage": "https://github.com/oddbytes/adventofcode2019#readme"
+  "homepage": "https://github.com/oddbytes/adventofcode#readme"
 }

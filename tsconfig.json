@@ -2,21 +2,17 @@
   "compileOnSave": true,
 
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2017",
     "sourceMap": true,
     "removeComments": true,
     "lib": [
       "dom",
-      "es2015.promise",
-      "es5",
-      "es6",
-      "ES2016",
-      "ES2017.String",
       "ES2019"
     ],
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
-    "noResolve": false
+    "noResolve": false,
+    "moduleResolution": "node"
   }
 }

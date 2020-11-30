@@ -6,7 +6,7 @@ export class BeamInspector {
   private computer = new IntcodeComputer();
   private programOptions: IProgramOptions = {
     suspendOnOutput: false,
-    input: []
+    input: [],
   };
 
   public getBeam(area: number): number[][] {
@@ -16,7 +16,7 @@ export class BeamInspector {
 
       for (let col = 0; col < area; col++) {
         this.programOptions.input = [row, col];
-        let exec = this.computer.execute(program, this.programOptions);
+        const exec = this.computer.execute(program, this.programOptions);
 
         grid[row][col] = exec.output[exec.output.length - 1];
       }

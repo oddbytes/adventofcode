@@ -1,8 +1,7 @@
-import { GameMap } from "../Day 13/gameMap";
 import { TileType } from "../Day 13/tiles";
 import { Direction } from "../Day 15/maze";
 import { IMazeTile, MazeTile } from "../Day 15/mazeTile";
-import { IntcodeComputer, IProgramOptions } from "../Day 2/intcodeComputer";
+import { IntcodeComputer } from "../Day 2/intcodeComputer";
 import { IPoint, Point } from "../Day 3/SegmentCalculator";
 export interface IMovement {
   direction: Direction;
@@ -19,7 +18,7 @@ export class ScaffoldMapper {
 
     if (!output) output = this.computer.execute(this.program).output;
     return output
-      .map(char => {
+      .map((char) => {
         if (char == 10) {
           mapY += 1; // new line
           mapX = 0;
@@ -27,15 +26,11 @@ export class ScaffoldMapper {
         } else {
           return new MazeTile(
             new Point(mapX++, mapY),
-            char === 35
-              ? TileType.block
-              : char === 46
-              ? TileType.empty
-              : TileType.ball
+            char === 35 ? TileType.block : char === 46 ? TileType.empty : TileType.ball
           );
         }
       })
-      .filter(t => t !== undefined);
+      .filter((t) => t !== undefined);
   }
 
   // reuse some of the code of maze mapper (day 15)
@@ -54,10 +49,7 @@ export class ScaffoldMapper {
     return Direction.north;
   };
 
-  private getRequestedPosition = (
-    position: IPoint,
-    direction: Direction
-  ): IPoint => {
+  private getRequestedPosition = (position: IPoint, direction: Direction): IPoint => {
     const { x, y } = position;
     switch (direction) {
       case Direction.north:
@@ -71,19 +63,16 @@ export class ScaffoldMapper {
     }
   };
 
-  private isReverse = (
-    direction1: Direction,
-    direction2: Direction
-  ): boolean => {
+  private isReverse = (direction1: Direction, direction2: Direction): boolean => {
     return direction1 + direction2 == 3 || direction1 + direction2 == 7;
   };
   private getTileAtPost = (tiles: IMazeTile[], pos: IPoint): IMazeTile =>
-    tiles.find(t => t.position.x == pos.x && t.position.y == pos.y);
+    tiles.find((t) => t.position.x == pos.x && t.position.y == pos.y);
 
   public getScaffoldMovemetns(tiles: IMazeTile[]): IMovement[] {
     const movements: IMovement[] = [];
 
-    const robotPos = tiles.find(t => t.type == TileType.ball);
+    const robotPos = tiles.find((t) => t.type == TileType.ball);
     robotPos.visited = true;
     let { position: currentPos } = robotPos;
     let currentDir = Direction.west;
@@ -99,10 +88,7 @@ export class ScaffoldMapper {
       );
 
       const lastDir = currentDir;
-      while (
-        (tileNewPos?.type == TileType.empty && turns < 3) ||
-        tileNewPos == undefined
-      ) {
+      while ((tileNewPos?.type == TileType.empty && turns < 3) || tileNewPos == undefined) {
         currentDir = this.turnRight(currentDir);
         if (!this.isReverse(currentDir, lastDir)) {
           // dont go back!

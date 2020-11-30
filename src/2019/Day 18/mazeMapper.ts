@@ -16,10 +16,7 @@ class QueueNode implements IQueueNode {
 export class MazeMapper {
   constructor(public mazeInput: string[]) {}
 
-  public getRequestedPosition = (
-    position: IPoint,
-    direction: Direction
-  ): IPoint => {
+  public getRequestedPosition = (position: IPoint, direction: Direction): IPoint => {
     const { x, y } = position;
     switch (direction) {
       case Direction.north:
@@ -33,32 +30,32 @@ export class MazeMapper {
     }
   };
 
-  private turnRight = (lastDirection: Direction): Direction => {
-    if (lastDirection == Direction.north) {
-      return Direction.east;
-    }
-    if (lastDirection == Direction.east) {
-      return Direction.south;
-    }
-    if (lastDirection == Direction.south) {
-      return Direction.west;
-    }
+  // private turnRight = (lastDirection: Direction): Direction => {
+  //   if (lastDirection == Direction.north) {
+  //     return Direction.east;
+  //   }
+  //   if (lastDirection == Direction.east) {
+  //     return Direction.south;
+  //   }
+  //   if (lastDirection == Direction.south) {
+  //     return Direction.west;
+  //   }
 
-    return Direction.north;
-  };
+  //   return Direction.north;
+  // };
 
-  private turnLeft = (lastDirection: Direction): Direction => {
-    if (lastDirection == Direction.north) {
-      return Direction.west;
-    }
-    if (lastDirection == Direction.east) {
-      return Direction.north;
-    }
-    if (lastDirection == Direction.south) {
-      return Direction.east;
-    }
-    return Direction.south;
-  };
+  // private turnLeft = (lastDirection: Direction): Direction => {
+  //   if (lastDirection == Direction.north) {
+  //     return Direction.west;
+  //   }
+  //   if (lastDirection == Direction.east) {
+  //     return Direction.north;
+  //   }
+  //   if (lastDirection == Direction.south) {
+  //     return Direction.east;
+  //   }
+  //   return Direction.south;
+  // };
 
   public getMap(): IMazeTile[] {
     const tiles: IMazeTile[] = [];
@@ -92,41 +89,35 @@ export class MazeMapper {
     return tiles;
   }
 
-  public doorsInRange(maze: IMazeTile[], src: IPoint) {
-    const doors = maze.filter(t => t.door);
+  public doorsInRange(maze: IMazeTile[], src: IPoint): IMazeTile[] {
+    const doors = maze.filter((t) => t.door);
 
-    return doors.filter(door => {
+    return doors.filter((door) => {
       door.distance = this.getMinDistance(maze, src, door);
       return door.distance > -1;
     });
   }
 
-  public keysInRange(maze: IMazeTile[], src: IPoint) {
-    const keys = maze.filter(t => t.key);
+  public keysInRange(maze: IMazeTile[], src: IPoint): IMazeTile[] {
+    const keys = maze.filter((t) => t.key);
 
-    return keys.filter(key => {
+    return keys.filter((key) => {
       key.distance = this.getMinDistance(maze, src, key);
       return key.distance > -1;
     });
   }
 
-  public getMinDistance = (
-    maze: IMazeTile[],
-    src: IPoint,
-    dest: IMazeTile
-  ): number => {
+  public getMinDistance = (maze: IMazeTile[], src: IPoint, dest: IMazeTile): number => {
     const isDoor = dest.door != undefined;
     // init tiles
-    maze.forEach(t => (t.visited = false));
+    maze.forEach((t) => (t.visited = false));
 
     //make dest tile "walkable" if it's a door
     if (isDoor) dest.type = TileType.empty;
 
     // mark src tile as visited
 
-    maze.find(
-      t => t.position.x == src.x && t.position.y == src.y
-    ).visited = true;
+    maze.find((t) => t.position.x == src.x && t.position.y == src.y).visited = true;
     // create queue
     const queue: IQueueNode[] = [];
 
@@ -150,13 +141,8 @@ export class MazeMapper {
 
         // if adjacent cell is valid, has path
         // and not visited yet, enqueue it.
-        const adjacentTile = maze.find(
-          t => t.position.x == adjacent.x && t.position.y == adjacent.y
-        );
-        if (
-          adjacentTile?.type !== TileType.wall &&
-          adjacentTile?.visited == false
-        ) {
+        const adjacentTile = maze.find((t) => t.position.x == adjacent.x && t.position.y == adjacent.y);
+        if (adjacentTile?.type !== TileType.wall && adjacentTile?.visited == false) {
           adjacentTile.visited = true;
           queue.push(new QueueNode(adjacentTile.position, curr.dist + 1));
         }

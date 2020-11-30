@@ -20,10 +20,7 @@ console.log(`movements:${movements.join(",")}`);
  * @param movements
  * @param maxLength
  */
-const getPattern = (
-  movements: IMovement[],
-  maxLength?: number
-): IMovement[] => {
+const getPattern = (movements: IMovement[], maxLength?: number): IMovement[] => {
   let currLength = 2;
   // slice the movements in currLength pieces and compare them to the first one
   let parts: IMovement[][] = [];
@@ -40,7 +37,7 @@ const getPattern = (
       (acum, part, currentIndex) =>
         currentIndex > 0 &&
         part.length == currLength &&
-        part.map(p => p.steps).every((p, i) => p == movements[i].steps)
+        part.map((p) => p.steps).every((p, i) => p == movements[i].steps)
           ? (acum += 1)
           : acum,
       0
@@ -49,25 +46,19 @@ const getPattern = (
   }
   return currLength > maxLength + 1
     ? []
-    : movements.slice(
-        0,
-        maxLength == Number.MAX_VALUE ? currLength - 2 : maxLength
-      );
+    : movements.slice(0, maxLength == Number.MAX_VALUE ? currLength - 2 : maxLength);
 };
 
 /**
  * Return a new array with the specified pattern deleted
  */
-const deletePattern = (
-  movements: IMovement[],
-  pattern: IMovement[]
-): IMovement[] => {
+const deletePattern = (movements: IMovement[], pattern: IMovement[]): IMovement[] => {
   const moves = Object.assign([], movements);
 
   let currIndex = moves.length - pattern.length;
   while (currIndex > -1) {
     const chunk = movements.slice(currIndex, currIndex + pattern.length);
-    if (chunk.map(m => m.steps).every((d, i) => d == pattern[i].steps)) {
+    if (chunk.map((m) => m.steps).every((d, i) => d == pattern[i].steps)) {
       moves.splice(currIndex, pattern.length);
       currIndex -= pattern.length - 1;
     }
@@ -82,10 +73,7 @@ const deletePattern = (
  * @param movements
  * @param maxPattens
  */
-const findPatterns = (
-  movements: IMovement[],
-  maxPattens: number
-): IMovement[][] => {
+const findPatterns = (movements: IMovement[], maxPattens: number): IMovement[][] => {
   // Identify patterns in movements
   const patterns: IMovement[][] = [];
   let patternsToFind = 0;
@@ -115,14 +103,10 @@ const findPatterns = (
 const mapPatterns = (movements: IMovement[], patterns: IMovement[][]) => {
   const moves = Object.assign([], movements);
   let patternIndex = 0;
-  let patternOrder: number[] = [];
+  const patternOrder: number[] = [];
 
   while (moves.length > 0 && patternIndex < patterns.length) {
-    if (
-      patterns[patternIndex]
-        .map(p => p.steps)
-        .every((d, i) => d == moves[i].steps)
-    ) {
+    if (patterns[patternIndex].map((p) => p.steps).every((d, i) => d == moves[i].steps)) {
       patternOrder.push(patternIndex);
       moves.splice(0, patterns[patternIndex].length);
       patternIndex = -1;
@@ -130,7 +114,7 @@ const mapPatterns = (movements: IMovement[], patterns: IMovement[][]) => {
     patternIndex++;
   }
 
-  return patternOrder.map(p => 65 + p);
+  return patternOrder.map((p) => 65 + p);
 };
 
 const getTurn = (move: IMovement, lastMove: IMovement): number => {
@@ -149,13 +133,9 @@ const getTurn = (move: IMovement, lastMove: IMovement): number => {
 };
 
 const getMoves = (num: number): number[] => {
-  return Array.from(num.toString()).map(c => 48 + parseInt(c));
+  return Array.from(num.toString()).map((c) => 48 + parseInt(c));
 };
-const programRobot = (
-  movements: IMovement[],
-  patterns: IMovement[][],
-  mappedPatterns: number[]
-) => {
+const programRobot = (patterns: IMovement[][], mappedPatterns: number[]) => {
   const computer = new IntcodeComputer();
   //start program
   program[0] = 2;
@@ -164,9 +144,9 @@ const programRobot = (
 
   const programOptions: IProgramOptions = {
     suspendOnOutput: true,
-    input: []
+    input: [],
   };
-  const main = mappedPatterns.map(m => [m, 44]).flat();
+  const main = mappedPatterns.map((m) => [m, 44]).flat();
   main[main.length - 1] = 10;
 
   const functions = [];
@@ -178,7 +158,7 @@ const programRobot = (
           getTurn(movement, moves[index - 1]),
           44,
           movement.steps < 10 ? 48 + movement.steps : getMoves(movement.steps),
-          44
+          44,
         ])
         .flat()
         .flat()
@@ -189,7 +169,7 @@ const programRobot = (
 
   let execResult = computer.execute(program, programOptions);
   while (execResult.exitCode != 99) {
-    const output = execResult.output.map(c => String.fromCharCode(c)).join("");
+    const output = execResult.output.map((c) => String.fromCharCode(c)).join("");
     let input;
     if (output.endsWith("Main:")) {
       input = main;
@@ -204,9 +184,7 @@ const programRobot = (
     execResult = computer.resume(input);
   }
 
-  console.log(
-    "Dust collected:" + execResult.output[execResult.output.length - 1]
-  );
+  console.log("Dust collected:" + execResult.output[execResult.output.length - 1]);
 };
 
 const patterns = findPatterns(movements, 3);

@@ -1,6 +1,4 @@
 import { signal } from "./signal";
-import { SignalCleaner } from "./signalCleaner";
-import { SignalCleaner2 } from "./signalCleaner2";
 import { SignalCleaner3 } from "./signalCleaner3";
 
 // te output repeats its end. See signalOutputPart 2 txt for samples
