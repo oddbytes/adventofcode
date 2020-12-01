@@ -2,11 +2,16 @@
   "compileOnSave": true,
 
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "es5",
     "sourceMap": true,
     "removeComments": true,
     "lib": [
       "dom",
+      "es2015.promise",
+      "es5",
+      "es6",
+      "ES2016",
+      "ES2017.String",
       "ES2019"
     ],
     "noUnusedParameters": true,
