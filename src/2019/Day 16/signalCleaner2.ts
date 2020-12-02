@@ -1,20 +1,18 @@
-import * as math from "mathjs";
-
 export class SignalCleaner2 {
   private basePattern = [0, 1, 0, -1];
 
-  private patterns: number[][] = [];
+  //private patterns: number[][] = [];
 
   constructor(public signal: number[]) {}
 
-  private generatePatterns(): void {
-    const pattern = Object.assign([], this.basePattern);
-    for (let i = 1; i <= this.signal.length; i++) {
-      this.updatePattern(pattern, i);
-      const newPattern = Object.assign([], pattern);
-      this.patterns[i] = newPattern;
-    }
-  }
+  // private generatePatterns(): void {
+  //   const pattern = Object.assign([], this.basePattern);
+  //   for (let i = 1; i <= this.signal.length; i++) {
+  //     this.updatePattern(pattern, i);
+  //     const newPattern = Object.assign([], pattern);
+  //     this.patterns[i] = newPattern;
+  //   }
+  // }
 
   private updatePattern(basePattern: number[], reps: number): void {
     if (reps > 1) {

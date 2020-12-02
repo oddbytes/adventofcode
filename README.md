@@ -1,4 +1,4 @@
-# adventofcode2019
+# adventofcode
 
-My TS solutions to adventfcode.com 2019 puzzles.
-Not the best, for sure!
+My TS solutions to adventfcode.com puzzles.
+Not the best, for sure, just hoping they help you!

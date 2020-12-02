@@ -6,7 +6,7 @@ export class BeamInspector {
   private computer = new IntcodeComputer();
   private programOptions: IProgramOptions = {
     suspendOnOutput: false,
-    input: []
+    input: [],
   };
 
   public getBeam(area: number): number[][] {

@@ -17,6 +17,7 @@
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
-    "noResolve": false
+    "noResolve": false,
+    "moduleResolution": "node"
   }
 }

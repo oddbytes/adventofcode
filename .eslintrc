@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.json",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-namespace": "off",
+ //   "@typescript-eslint/interface-name-prefix": ["error", "always"],
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitido" }], //Es necesario poner // break omitido para que pase esta regla,
+    "prefer-arrow-callback": ["error"],
+    "prefer-const": "warn"
+  }
+}

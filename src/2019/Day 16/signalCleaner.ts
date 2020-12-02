@@ -1,7 +1,7 @@
 export class SignalCleaner {
   private basePattern = [0, 1, 0, -1];
 
-  private patterns: number[][] = [];
+  //private patterns: number[][] = [];
 
   constructor(public signal: number[]) {}
 

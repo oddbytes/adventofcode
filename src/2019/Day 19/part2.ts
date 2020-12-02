@@ -9,7 +9,7 @@ const eobLines: number[] = [];
 const sobLines: number[] = [];
 
 const endOfBeamAtLine = (y: number): number => {
-  let x = eobLines[y - 1] ?? 0;
+  let x = eobLines[y - 1] ?? 0
 
   // find beam
   while (!beam.isInBeam(new Point(x, y))) {
