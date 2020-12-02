@@ -1,6 +1,6 @@
 import { IntcodeComputer, IProgramOptions } from "../Day 2/intcodeComputer";
-import { program } from "./program";
 import { IPoint } from "../Day 3/SegmentCalculator";
+import { program } from "./program";
 
 export class BeamInspector {
   private computer = new IntcodeComputer();
@@ -16,7 +16,7 @@ export class BeamInspector {
 
       for (let col = 0; col < area; col++) {
         this.programOptions.input = [row, col];
-        let exec = this.computer.execute(program, this.programOptions);
+        const exec = this.computer.execute(program, this.programOptions);
 
         grid[row][col] = exec.output[exec.output.length - 1];
       }
@@ -26,8 +26,8 @@ export class BeamInspector {
   }
 
   public isInBeam(pos: IPoint): boolean {
-    this.programOptions.input = [pos.y, pos.x];
-    let exec = this.computer.execute(program, this.programOptions);
+    this.programOptions.input = [pos.x, pos.y];
+    const exec = this.computer.execute(program, this.programOptions);
     return exec.output[exec.output.length - 1] == 1;
   }
 

@@ -7,6 +7,7 @@
     "@types/mathjs": "^6.0.2",
     "deepcopy": "^2.0.0",
     "mathjs": "^6.2.5",
+    "node-dijkstra": "^2.5.0",
     "prettier": "^1.19.1",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",

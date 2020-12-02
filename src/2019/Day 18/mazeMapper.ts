@@ -119,8 +119,10 @@ export class MazeMapper {
     // init tiles
     maze.forEach(t => (t.visited = false));
 
-    //make dest tile "walkable" if it's a door
-    if (isDoor) dest.type = TileType.empty;
+    // make dest tile "walkable" if it's a door
+    if (isDoor) {
+      dest.type = TileType.empty;
+    }
 
     // mark src tile as visited
 
@@ -139,7 +141,9 @@ export class MazeMapper {
       // If we have reached the destination cell,
       // we are done
       if (pt.x == dest.position.x && pt.y == dest.position.y) {
-        if (isDoor) dest.type = TileType.wall;
+        if (isDoor) {
+          dest.type = TileType.wall;
+        }
         return curr.dist;
       }
 
@@ -162,7 +166,9 @@ export class MazeMapper {
         }
       }
     }
-    if (isDoor) dest.type = TileType.wall;
+    if (isDoor) {
+      dest.type = TileType.wall;
+    }
 
     return -1;
   };
