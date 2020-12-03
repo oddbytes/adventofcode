@@ -36,17 +36,15 @@ export class Rectangle implements IRectangle {
     return x1 < x4 && x2 > x3 && y1 < y4 && y2 > y3;
   }
   public overlappingArea(rectangle: IRectangle): number {
-    if (!this.overlaps(rectangle)) return 0;
+    //if (!this.overlaps(rectangle)) return 0;
 
     const { x: x1, y: y1 } = this.start;
     const { x: x2, y: y2 } = this.end;
     const { x: x3, y: y3 } = rectangle.start;
     const { x: x4, y: y4 } = rectangle.end;
 
-    const overlapX =
-      x3 <= x1 ? (x4 <= x2 ? x4 - x1 : x2 - x1) : x4 <= x2 ? x4 - x3 : x2 - x3;
-    const overlapY =
-      y3 <= y1 ? (y4 <= y2 ? y4 - y1 : y2 - y1) : y4 <= y2 ? y4 - y3 : y2 - y3;
+    const overlapX = x3 <= x1 ? (x4 <= x2 ? x4 - x1 : x2 - x1) : x4 <= x2 ? x4 - x3 : x2 - x3;
+    const overlapY = y3 <= y1 ? (y4 <= y2 ? y4 - y1 : y2 - y1) : y4 <= y2 ? y4 - y3 : y2 - y3;
 
     return overlapX * overlapY;
   }

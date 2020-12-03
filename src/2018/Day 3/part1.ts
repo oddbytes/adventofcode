@@ -1,5 +1,5 @@
 import { Rectangle, IRectangle } from "./rectangle";
-import { claims } from "./claims";
+import { claimsDemo, claims } from "./claims";
 
 // const r1 = new Rectangle(5, 5, 10, 10);
 // const r2 = new Rectangle(5, 3, 20, 3);
@@ -8,9 +8,10 @@ import { claims } from "./claims";
 
 // return;
 
-const rectangles = claims.map(claim => {
+const rectangles = claims.map((claim) => {
   //"#1 @ 469,741: 22x26",
   const dimensions = claim.match(/(\d+),(\d+):\s(\d+)x(\d+)/);
+
   return new Rectangle(
     parseInt(dimensions[1]),
     parseInt(dimensions[2]),
@@ -19,9 +20,11 @@ const rectangles = claims.map(claim => {
   );
 });
 
+console.log(rectangles);
+
 const checkedRectangles: IRectangle[] = [];
 
-const totalOverlappingArea = rectangles.reduce((acum, rectangle1) => {
+const totalOverlappingArea1 = rectangles.reduce((acum, rectangle1) => {
   checkedRectangles.push(rectangle1);
   return (
     acum +
@@ -32,4 +35,11 @@ const totalOverlappingArea = rectangles.reduce((acum, rectangle1) => {
   );
 }, 0);
 
-console.log(totalOverlappingArea);
+const totalOverlappingArea = () => {
+  console.time("totalOverlappingArea");
+  let acum = 0;
+  rectangles.forEach((r1, i1) => rectangles.slice(i1 + 1).forEach((r2) => (acum += r1.overlappingArea(r2))));
+  console.timeEnd("totalOverlappingArea");
+  return acum;
+};
+console.log(totalOverlappingArea());
