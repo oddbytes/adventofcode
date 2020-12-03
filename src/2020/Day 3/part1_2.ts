@@ -10,8 +10,8 @@ class SlopeCalculator {
   }
 
   public treesInSlope = (right: number, down: number): number => {
-    let x = right,
-      y = down,
+    let x = 0,
+      y = 0,
       treesCount = 0;
     // Hasta que lleguemos abajo
     while (y < this.rows) {
