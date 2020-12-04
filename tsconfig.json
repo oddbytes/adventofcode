@@ -19,5 +19,6 @@
     "noImplicitReturns": true,
     "noResolve": false,
     "moduleResolution": "node"
+
   }
 }
