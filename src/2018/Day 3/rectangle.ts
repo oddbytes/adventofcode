@@ -35,17 +35,25 @@ export class Rectangle implements IRectangle {
 
     return x1 < x4 && x2 > x3 && y1 < y4 && y2 > y3;
   }
+
+  public get area(): number {
+    return (this.end.x - this.start.x) * (this.end.y - this.start.y);
+  }
   public overlappingArea(rectangle: IRectangle): number {
-    //if (!this.overlaps(rectangle)) return 0;
+    const { x: left1, y: top1 } = this.start;
+    const { x: right1, y: bottom1 } = this.end;
+    const { x: left2, y: top2 } = rectangle.start;
+    const { x: right2, y: bottom2 } = rectangle.end;
 
-    const { x: x1, y: y1 } = this.start;
-    const { x: x2, y: y2 } = this.end;
-    const { x: x3, y: y3 } = rectangle.start;
-    const { x: x4, y: y4 } = rectangle.end;
+    if (right1 < left2 || left1 > right2 || bottom1 < top2 || top1 > bottom2)
+      return 0;
 
-    const overlapX = x3 <= x1 ? (x4 <= x2 ? x4 - x1 : x2 - x1) : x4 <= x2 ? x4 - x3 : x2 - x3;
-    const overlapY = y3 <= y1 ? (y4 <= y2 ? y4 - y1 : y2 - y1) : y4 <= y2 ? y4 - y3 : y2 - y3;
-
-    return overlapX * overlapY;
+    const width = right1 > right2 ? right2 - left1 : right1 - left2;
+    const height = bottom1 > bottom2 ? bottom2 - top1 : bottom1 - top2;
+    return width * height;
+    return (
+      Math.max(0, Math.min(right2, right1) - Math.max(left2, left1)) *
+      Math.max(0, Math.min(bottom2, bottom1) - Math.max(top2, top1))
+    );
   }
 }

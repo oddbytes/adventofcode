@@ -1,12 +1,5 @@
-import { Rectangle, IRectangle } from "./rectangle";
-import { claimsDemo, claims } from "./claims";
-
-// const r1 = new Rectangle(5, 5, 10, 10);
-// const r2 = new Rectangle(5, 3, 20, 3);
-// console.log(r1.overlappingArea(r2));
-// console.log(r2.overlappingArea(r1));
-
-// return;
+import { Rectangle } from "./rectangle";
+import { claims } from "./claims";
 
 const rectangles = claims.map((claim) => {
   //"#1 @ 469,741: 22x26",
@@ -20,26 +13,19 @@ const rectangles = claims.map((claim) => {
   );
 });
 
-console.log(rectangles);
-
-const checkedRectangles: IRectangle[] = [];
-
-const totalOverlappingArea1 = rectangles.reduce((acum, rectangle1) => {
-  checkedRectangles.push(rectangle1);
-  return (
-    acum +
-    rectangles.reduce((acum2, rectangle2) => {
-      if (checkedRectangles.includes(rectangle2)) return acum2;
-      return acum2 + rectangle1.overlappingArea(rectangle2);
-    }, 0)
-  );
-}, 0);
-
+// Dos o mas rectangulos pueden superponerse en la misma zona, por lo que guardamos en un array las posiciones ocupadas por cada rectangulo
+// Si un rectangulo ocupa la posicion de otro, se suma 1 a esa poicion
+// Las areas de souperposicion on las que tiene  mas de un rectangulo en ese punto
 const totalOverlappingArea = () => {
-  console.time("totalOverlappingArea");
-  let acum = 0;
-  rectangles.forEach((r1, i1) => rectangles.slice(i1 + 1).forEach((r2) => (acum += r1.overlappingArea(r2))));
-  console.timeEnd("totalOverlappingArea");
-  return acum;
+  const tiles: number[] = [];
+  const maxWidth = Math.max(...rectangles.map((r) => r.end.x)) + 1;
+  rectangles.forEach((rect) => {
+    for (let x = rect.start.x; x < rect.end.x; x++)
+      for (let y = rect.start.y; y < rect.end.y; y++)
+        tiles[y * maxWidth + x] = (tiles[y * maxWidth + x] ?? 0) + 1;
+  });
+  return tiles.filter((t) => t > 1).length;
 };
-console.log(totalOverlappingArea());
+console.time("part1");
+console.log("Answer:", totalOverlappingArea());
+console.timeEnd("part1");

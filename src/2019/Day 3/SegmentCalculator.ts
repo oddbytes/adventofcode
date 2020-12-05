@@ -4,8 +4,8 @@ export interface IPoint {
 }
 
 export class Point implements IPoint {
-  public x: number = 0;
-  public y: number = 0;
+  public x = 0;
+  public y = 0;
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
@@ -99,7 +99,7 @@ export class SegmentCalculator {
   public getWireSegments(wire: string[]): ISegment[] {
     let currX = 0;
     let currY = 0;
-    return wire.map(s => {
+    return wire.map((s) => {
       const dir = s[0];
       const length = parseInt(s.substr(1));
       let finalX = currX;
