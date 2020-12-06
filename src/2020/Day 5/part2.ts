@@ -14,6 +14,6 @@ const min = ids[0],
 
 const actualSum = ids.reduce((a, b) => a + b, 0);
 
-console.log("Answer:", gauss(max) - gauss(min) - actualSum + min);
+console.log("Answer:", gauss(max) - gauss(min - 1) - actualSum);
 
 console.timeEnd("part2");
