@@ -1,10 +1,13 @@
 ﻿{
+  
   "compileOnSave": true,
 
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
+    "module": "commonjs",
     "sourceMap": true,
     "removeComments": true,
+    
     "lib": [
       "dom",
       "es2015.promise",
@@ -18,7 +21,8 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "noResolve": false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+  
 
   }
 }

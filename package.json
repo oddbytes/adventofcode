@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "deepcopy": "^2.0.0",
-    "mathjs": "^6.2.5"
+    "mathjs": "^6.2.5",
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "@types/mathjs": "^6.0.2",
