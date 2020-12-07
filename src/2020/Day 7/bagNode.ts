@@ -42,12 +42,13 @@ export class BagNode implements IBagNode {
    * Devuelve el numero de maletas contenidas
    */
   public get containedBags(): number {
-    return this.contains.reduce((acum, containedBag) => {
-      acum +=
-        containedBag.quantity +
-        containedBag.quantity * containedBag.bag.containedBags;
-      return acum;
-    }, 0);
+    return this.contains.reduce(
+      (acum, containedBag) =>
+        (acum +=
+          containedBag.quantity +
+          containedBag.quantity * containedBag.bag.containedBags),
+      0
+    );
   }
 }
 
