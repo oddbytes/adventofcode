@@ -2,11 +2,6 @@ import * as fs from "fs";
 import { IPoint, Point } from "../../common/point";
 import { Segment } from "../../common/segment";
 
-interface IAngle {
-  degrees: number;
-  name: string;
-}
-
 export class Ship {
   public movements: string[];
   private heading = 90;
