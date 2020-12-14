@@ -3,11 +3,11 @@ export interface ITreeNode<T> {
   parent: ITreeNode<T>;
   children: ITreeNode<T>[];
   /**
-   * Returns the depth of a node in the tree. Root node depth=0
+   * Devuelve la porfundidad del nodo en el árbol. La raiz tiene profundidad=0
    */
   depth: number;
   /**
-   * returns an array of parent nodes from this one to the root
+   * Devuelve un array con los nodos padre de este nodo
    */
   parents: ITreeNode<T>[];
 }
