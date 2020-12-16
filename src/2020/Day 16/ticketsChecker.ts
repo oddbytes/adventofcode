@@ -8,13 +8,13 @@ interface ILimit {
   from: number;
   to: number;
 }
-interface IFieldRules {
+interface IFieldRule {
   name: string;
   limits: ILimit[];
   matchingPositions: number[];
 }
 export class TicketsChecker {
-  private rules: IFieldRules[];
+  private rules: IFieldRule[];
   private ownTicket: ITicket = { fields: [] };
   private nearbyTickets: ITicket[];
   private allLimits: ILimit[];
@@ -26,7 +26,7 @@ export class TicketsChecker {
 
     this.rules = sections[0].split("\r\n").map((line) => {
       const parts = line.split(": ");
-      const rule: IFieldRules = {
+      const rule: IFieldRule = {
         name: parts[0],
         limits: [],
         matchingPositions: [],
@@ -66,13 +66,24 @@ export class TicketsChecker {
   isFieldInvalid = (field: number): boolean =>
     !this.allLimits.some((limit) => field >= limit.from && field <= limit.to);
 
-  isFieldValidForRule = (field: number, rule: IFieldRules): boolean =>
+  /**
+   * Indica si el valor de un campo cumple con la regla indicada
+   */
+  isFieldValidForRule = (field: number, rule: IFieldRule): boolean =>
     rule.limits.some((limit) => field >= limit.from && field <= limit.to);
 
-  public isTicketInvalid = (ticket: ITicket): boolean =>
+  /**
+   * Indica si el ticket pasado es inválido segun el valor de sus campos
+   * @param ticket ticket a comporbar
+   */
+
+  private isTicketInvalid = (ticket: ITicket): boolean =>
     ticket.fields.some((field) => this.isFieldInvalid(field));
 
-  public findFieldsPosition = (): void => {
+  /**
+   * Encuentra las columnas a las que ertenece cada regla
+   */
+  private findFieldsPosition = (): void => {
     const validTickets = this.nearbyTickets.filter(
       (ticket) => !this.isTicketInvalid(ticket)
     );
@@ -112,6 +123,7 @@ export class TicketsChecker {
    * Devuelve los valores de los campos que comienzan por "departure"
    */
   public getDeparture = (): number[] => {
+    this.findFieldsPosition();
     const positions = this.rules
       .filter((r) => r.name.startsWith("departure"))
       .flatMap((r) => r.matchingPositions);

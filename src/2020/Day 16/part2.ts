@@ -1,7 +1,6 @@
 import { TicketsChecker } from "./ticketsChecker";
 console.time("part2");
 const ticketsChecker = new TicketsChecker("./tickets.txt");
-ticketsChecker.findFieldsPosition();
 const values = ticketsChecker.getDeparture();
 
 console.log(
