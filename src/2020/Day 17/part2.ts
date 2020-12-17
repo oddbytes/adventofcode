@@ -4,7 +4,6 @@ const space = new ConwayCubesSpace4D("./initialState.txt");
 
 for (let cycle = 0; cycle < 6; cycle++) {
   space.runCycle();
-  //  console.log(space.renderSpace());
 }
 
 console.log(

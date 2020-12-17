@@ -15,12 +15,9 @@ export class ConwayCubesSpace3D {
     const lines = fs.readFileSync(initialStateFile, "utf8").split("\r\n");
     this.endDimensions = new Point3D(lines[0].length - 1, lines.length - 1, 0);
     lines.forEach((line, y) =>
-      Array.from(line).forEach(
-        (cube, x) => {
-          if (cube == "#") this.cubes.add(new Point3D(x, y, 0).toString());
-        }
-        //this.cubes.set(new Point3D(x, y, 0).toString(), cube == "#")
-      )
+      Array.from(line).forEach((cube, x) => {
+        if (cube == "#") this.cubes.add(new Point3D(x, y, 0).toString());
+      })
     );
   }
 
@@ -68,7 +65,6 @@ export class ConwayCubesSpace3D {
       (key) => (this.endDimensions[key] += 1)
     );
 
-    // const cycleCubes: Map<string, boolean> = new Map<string, boolean>();
     const cycleCubes: Set<string> = new Set<string>();
 
     for (let z = this.startDimensions.z; z <= this.endDimensions.z; z++)

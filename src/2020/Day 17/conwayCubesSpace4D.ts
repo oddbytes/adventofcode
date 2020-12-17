@@ -34,23 +34,18 @@ export class ConwayCubesSpace4D {
         for (let y = -1; y < 2; y++)
           for (let x = -1; x < 2; x++) {
             if (x != 0 || y != 0 || z != 0 || w != 0) {
-              const adjacentCube = new Point4D(
-                cube.x + x,
-                cube.y + y,
-                cube.z + z,
-                cube.w + w
-              );
               if (
-                this.cubes.has(adjacentCube.toString()) && //si no existe esta fuera del mapa o apagado
-                adjacentCube.x >= this.startDimensions.x &&
-                adjacentCube.y >= this.startDimensions.y &&
-                adjacentCube.z >= this.startDimensions.z &&
-                adjacentCube.w >= this.startDimensions.w &&
-                adjacentCube.x <= this.endDimensions.x &&
-                adjacentCube.y <= this.endDimensions.y &&
-                adjacentCube.z <= this.endDimensions.z &&
-                adjacentCube.w <= this.endDimensions.w //&&
-                // this.cubes.get(adjacentCube.toString())
+                this.cubes.has(
+                  `${cube.x + x},${cube.y + y},${cube.z + z},${cube.w + w}` //mucho mas eficiente que crear un Point4D
+                ) && //si no existe esta fuera del mapa o apagado
+                x >= this.startDimensions.x &&
+                y >= this.startDimensions.y &&
+                z >= this.startDimensions.z &&
+                w >= this.startDimensions.w &&
+                x <= this.endDimensions.x &&
+                y <= this.endDimensions.y &&
+                z <= this.endDimensions.z &&
+                w <= this.endDimensions.w //&&
               )
                 on++;
             }
@@ -79,13 +74,11 @@ export class ConwayCubesSpace4D {
         for (let y = this.startDimensions.y; y <= this.endDimensions.y; y++)
           for (let x = this.startDimensions.x; x <= this.endDimensions.x; x++) {
             const currentCube = new Point4D(x, y, z, w);
-            // if (!cycleCubes.has(currentCube.toString()))
-            //   cycleCubes.set(currentCube.toString(), false);
+            const currentCubeKey = currentCube.toString();
             const onAround = this.occupiedAround(currentCube);
-            if (this.cubes.has(currentCube.toString())) {
-              if (onAround > 1 && onAround < 4)
-                cycleCubes.add(currentCube.toString());
-            } else if (onAround == 3) cycleCubes.add(currentCube.toString());
+            if (this.cubes.has(currentCubeKey)) {
+              if (onAround > 1 && onAround < 4) cycleCubes.add(currentCubeKey);
+            } else if (onAround == 3) cycleCubes.add(currentCubeKey);
           }
 
     this.cubes = cycleCubes;
