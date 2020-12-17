@@ -1,7 +1,7 @@
 export interface IPoint {
   x: number;
   y: number;
-  rotate(angle: number): void;
+  rotate?(angle: number): void;
 }
 
 /**

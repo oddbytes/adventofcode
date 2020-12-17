@@ -1,4 +1,6 @@
-import * as fs from "fs";
+fs.readFileSync(startnumbersFile, "utf8")
+  .split(",")
+  .forEach((n) => this.setSpokenNumber(parseInt(n)));
 
 /**
  * representa un numero nombrado en el juego.
