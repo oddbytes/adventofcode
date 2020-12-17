@@ -2,7 +2,7 @@ import * as fs from "fs";
 import { IPoint4D, Point4D } from "../../common/point4D";
 
 export class ConwayCubesSpace4D {
-  public cubes: Map<string, boolean> = new Map<string, boolean>();
+  public cubes: Set<string> = new Set<string>();
   //Almacena las coordenadas de inicio del espacio actual
   private startDimensions: IPoint4D = new Point4D(0, 0, 0, 0);
   //Almacena las coordenadas finales del espacio actual
@@ -17,9 +17,9 @@ export class ConwayCubesSpace4D {
       0
     );
     lines.forEach((line, y) =>
-      Array.from(line).forEach((cube, x) =>
-        this.cubes.set(new Point4D(x, y, 0, 0).toString(), cube == "#")
-      )
+      Array.from(line).forEach((cube, x) => {
+        if (cube == "#") this.cubes.add(new Point4D(x, y, 0, 0).toString());
+      })
     );
   }
 
@@ -49,8 +49,8 @@ export class ConwayCubesSpace4D {
                 adjacentCube.x <= this.endDimensions.x &&
                 adjacentCube.y <= this.endDimensions.y &&
                 adjacentCube.z <= this.endDimensions.z &&
-                adjacentCube.w <= this.endDimensions.w &&
-                this.cubes.get(adjacentCube.toString())
+                adjacentCube.w <= this.endDimensions.w //&&
+                // this.cubes.get(adjacentCube.toString())
               )
                 on++;
             }
@@ -73,40 +73,21 @@ export class ConwayCubesSpace4D {
     );
 
     //public cubes:
-    const cycleCubes: Map<string, boolean> = new Map<string, boolean>();
+    const cycleCubes: Set<string> = new Set<string>();
     for (let w = this.startDimensions.w; w <= this.endDimensions.z; w++)
       for (let z = this.startDimensions.z; z <= this.endDimensions.z; z++)
         for (let y = this.startDimensions.y; y <= this.endDimensions.y; y++)
           for (let x = this.startDimensions.x; x <= this.endDimensions.x; x++) {
             const currentCube = new Point4D(x, y, z, w);
-            if (!cycleCubes.has(currentCube.toString()))
-              cycleCubes.set(currentCube.toString(), false);
+            // if (!cycleCubes.has(currentCube.toString()))
+            //   cycleCubes.set(currentCube.toString(), false);
             const onAround = this.occupiedAround(currentCube);
-            if (this.cubes.get(currentCube.toString())) {
-              cycleCubes.set(
-                currentCube.toString(),
-                onAround > 1 && onAround < 4
-              );
-            } else cycleCubes.set(currentCube.toString(), onAround == 3);
+            if (this.cubes.has(currentCube.toString())) {
+              if (onAround > 1 && onAround < 4)
+                cycleCubes.add(currentCube.toString());
+            } else if (onAround == 3) cycleCubes.add(currentCube.toString());
           }
 
     this.cubes = cycleCubes;
   };
-
-  // public renderSpace = (): string => {
-  //   let space = "";
-
-  //   for (let z = this.startDimensions.z; z <= this.endDimensions.z; z++) {
-  //     space += "z:" + z;
-
-  //     for (let y = this.startDimensions.y; y <= this.endDimensions.y; y++) {
-  //       space += "\r\n";
-  //       for (let x = this.startDimensions.x; x <= this.endDimensions.x; x++) {
-  //         space += this.cubes.get(new Point3D(x, y, z).toString()) ? "#" : ".";
-  //       }
-  //     }
-  //     space += "\r\n\r\n";
-  //   }
-  //   return space;
-  // };
 }

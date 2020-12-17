@@ -5,7 +5,7 @@ import { IPoint3D, Point3D } from "../../common/point3D";
  * Representa el espacio tridimensional conocido en el que existen los cubos
  */
 export class ConwayCubesSpace3D {
-  public cubes: Map<string, boolean> = new Map<string, boolean>();
+  public cubes: Set<string> = new Set<string>();
   //Almacena las coordenadas de inicio del espacio actual
   private startDimensions: IPoint3D = new Point3D(0, 0, 0);
   //Almacena las coordenadas finales del espacio actual
@@ -15,8 +15,11 @@ export class ConwayCubesSpace3D {
     const lines = fs.readFileSync(initialStateFile, "utf8").split("\r\n");
     this.endDimensions = new Point3D(lines[0].length - 1, lines.length - 1, 0);
     lines.forEach((line, y) =>
-      Array.from(line).forEach((cube, x) =>
-        this.cubes.set(new Point3D(x, y, 0).toString(), cube == "#")
+      Array.from(line).forEach(
+        (cube, x) => {
+          if (cube == "#") this.cubes.add(new Point3D(x, y, 0).toString());
+        }
+        //this.cubes.set(new Point3D(x, y, 0).toString(), cube == "#")
       )
     );
   }
@@ -37,14 +40,13 @@ export class ConwayCubesSpace3D {
               cube.z + z
             );
             if (
-              this.cubes.has(adjacentCube.toString()) && //si no existe esta fuera del mapa o apagado
+              this.cubes.has(adjacentCube.toString()) && //si no existe, está fuera del mapa o apagado
               adjacentCube.x >= this.startDimensions.x &&
               adjacentCube.y >= this.startDimensions.y &&
               adjacentCube.z >= this.startDimensions.z &&
               adjacentCube.x <= this.endDimensions.x &&
               adjacentCube.y <= this.endDimensions.y &&
-              adjacentCube.z <= this.endDimensions.z &&
-              this.cubes.get(adjacentCube.toString())
+              adjacentCube.z <= this.endDimensions.z
             )
               on++;
           }
@@ -66,21 +68,19 @@ export class ConwayCubesSpace3D {
       (key) => (this.endDimensions[key] += 1)
     );
 
-    //public cubes:
-    const cycleCubes: Map<string, boolean> = new Map<string, boolean>();
+    // const cycleCubes: Map<string, boolean> = new Map<string, boolean>();
+    const cycleCubes: Set<string> = new Set<string>();
+
     for (let z = this.startDimensions.z; z <= this.endDimensions.z; z++)
       for (let y = this.startDimensions.y; y <= this.endDimensions.y; y++)
         for (let x = this.startDimensions.x; x <= this.endDimensions.x; x++) {
           const currentCube = new Point3D(x, y, z);
-          if (!cycleCubes.has(currentCube.toString()))
-            cycleCubes.set(currentCube.toString(), false);
+
           const onAround = this.onAround(currentCube);
-          if (this.cubes.get(currentCube.toString())) {
-            cycleCubes.set(
-              currentCube.toString(),
-              onAround > 1 && onAround < 4
-            );
-          } else cycleCubes.set(currentCube.toString(), onAround == 3);
+          if (this.cubes.has(currentCube.toString())) {
+            if (onAround > 1 && onAround < 4)
+              cycleCubes.add(currentCube.toString());
+          } else if (onAround == 3) cycleCubes.add(currentCube.toString());
         }
 
     this.cubes = cycleCubes;
@@ -95,7 +95,7 @@ export class ConwayCubesSpace3D {
       for (let y = this.startDimensions.y; y <= this.endDimensions.y; y++) {
         space += "\r\n";
         for (let x = this.startDimensions.x; x <= this.endDimensions.x; x++) {
-          space += this.cubes.get(new Point3D(x, y, z).toString()) ? "#" : ".";
+          space += this.cubes.has(new Point3D(x, y, z).toString()) ? "#" : ".";
         }
       }
       space += "\r\n\r\n";

@@ -12,6 +12,5 @@ export class Point4D implements IPoint4D {
     public w: number
   ) {}
 
-  public toString = (): string =>
-    `x:${this.x},y:${this.y},z:${this.z},w:${this.w}`;
+  public toString = (): string => `${this.x},${this.y},${this.z},${this.w}`;
 }
