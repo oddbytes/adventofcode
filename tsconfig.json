@@ -15,7 +15,8 @@
       "es6",
       "ES2016",
       "ES2017.String",
-      "ES2019"
+      "ES2019",
+      "ES2020.String"
     ],
     "noUnusedParameters": true,
     "noUnusedLocals": true,
