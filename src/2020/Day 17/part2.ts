@@ -6,9 +6,6 @@ for (let cycle = 0; cycle < 6; cycle++) {
   space.runCycle();
 }
 
-console.log(
-  "Answer:",
-  Array.from(space.cubes.values()).filter((state) => state).length
-);
+console.log("Answer:", space.cubes.size);
 
 console.timeEnd("part2");
