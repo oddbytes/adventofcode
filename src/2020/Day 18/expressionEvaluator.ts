@@ -3,6 +3,7 @@ import { ExpressionTokenizer } from "./expressionTokenizer";
 
 /**
  * Representa un evaluador de expresiones
+ * basado en https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
  */
 export class ExpressionEvaluator {
   private expressions: string[];
