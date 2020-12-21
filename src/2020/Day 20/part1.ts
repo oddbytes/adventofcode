@@ -1,7 +1,7 @@
-import { EdgeDetector } from "./edgeDetector";
+import { PuzzleSolver } from "./puzzleSolver";
 
 console.time("part1");
-const edgeDetector = new EdgeDetector("./tiles.txt");
+const edgeDetector = new PuzzleSolver("./tiles.txt");
 
 const outerTiles = edgeDetector.getCornerTiles();
 
