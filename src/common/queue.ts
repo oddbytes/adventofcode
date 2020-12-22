@@ -2,16 +2,16 @@
  * A generic queue
  */
 export class Queue<T> {
-  private items: T[] = [];
+  public items: T[] = [];
   constructor(items?: T[]) {
-    if (items) this.items = items;
+    if (items) this.items = [...items];
   }
 
   public push = (item: T): number => this.items.push(item);
 
   public pop = (): T => this.items.shift();
 
-  public peek = (): T => this.items[this.items.length - 1];
+  public peek = (): T => (this.isEmpty ? null : this.items[0]);
 
   public get length(): number {
     return this.items.length;
@@ -19,4 +19,6 @@ export class Queue<T> {
   public get isEmpty(): boolean {
     return this.items.length == 0;
   }
+
+  public toString = (): string => this.items.join();
 }
