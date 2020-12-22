@@ -1,5 +1,5 @@
 /**
- * A generic queue
+ * Una cola generica
  */
 export class Queue<T> {
   public items: T[] = [];

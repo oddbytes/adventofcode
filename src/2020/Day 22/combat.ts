@@ -37,7 +37,7 @@ export class Combat {
   };
 
   /**
-   * Obtiene un  identificador unico para el estado del juego a partir d elas posiciones de las cartas de cada jugador
+   * Obtiene un  identificador único para el estado del juego a partir de las posiciones de las cartas de cada jugador
    * @param player1Cards
    * @param player2Cards
    */
@@ -76,6 +76,9 @@ export class Combat {
     return player1Cards.isEmpty ? 2 : 1;
   };
 
+  /**
+   * Juega una mano de la partida segun las reglas de la segunda parte
+   */
   public playRound = (
     player1Cards: Queue<number>,
     player2Cards: Queue<number>
