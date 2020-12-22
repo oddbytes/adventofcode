@@ -1,5 +1,8 @@
 import * as fs from "fs";
 
+/**
+ * Representa los valores de los campos de un ticket
+ */
 interface ITicket {
   fields: number[];
 }
@@ -8,19 +11,24 @@ interface ILimit {
   from: number;
   to: number;
 }
+/**
+ * Definicion de cada campo del ticket: nombre y limites.
+ * matchingPositions se usará par determinar el orden de este campo en la parte 2
+ */
 interface IFieldRule {
   name: string;
   limits: ILimit[];
   matchingPositions: number[];
 }
+
 export class TicketsChecker {
   private rules: IFieldRule[];
   private ownTicket: ITicket = { fields: [] };
   private nearbyTickets: ITicket[];
+  // Cachea toda la colección de limites de todas las reglas
   private allLimits: ILimit[];
   constructor(ticketsFile: string) {
-    //Lee el fichero de entrada y genera las entradas en el mapa de numeros nombrados
-    // correspondientes a los numeros iniciales de la lista
+    // Lee el fichero de entrada y genera las colecciones de objetos que representan cada parte
     const sections = fs.readFileSync(ticketsFile, "utf8").split("\r\n\r\n");
     const reLimits = /(\d+)-(\d+)/g;
 
