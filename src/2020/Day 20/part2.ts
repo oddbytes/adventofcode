@@ -1,7 +1,7 @@
 import { PuzzleSolver } from "./puzzleSolver";
 
 console.time("part2");
-const edgeDetector = new PuzzleSolver("src/2020/day 20/tilesDemo.txt");
+const edgeDetector = new PuzzleSolver("src/2020/day 20/tiles.txt");
 
 const outerTiles = edgeDetector.getImage();
 

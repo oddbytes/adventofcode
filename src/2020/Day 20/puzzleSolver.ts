@@ -94,7 +94,9 @@ export class PuzzleSolver {
 
   private allEdges = () => this.tiles.flatMap((t) => t.edges);
 
-  private rotate = (tile: Tile): Tile => {
+  private flipHorizontally = (tile: Tile): Tile => {
+    tile = this.tiles.find((t) => t.id == tile.id);
+
     tile.content = tile.content.map((l) => Array.from(l).reverse().join(""));
     const edgeId = tile.edges[edge.left];
     tile.edges[edge.left] = tile.edges[edge.right];
@@ -102,11 +104,35 @@ export class PuzzleSolver {
     return tile;
   };
 
-  private flip = (tile: Tile): Tile => {
+  private flipVertically = (tile: Tile): Tile => {
+    tile = this.tiles.find((t) => t.id == tile.id);
     tile.content = tile.content.reverse();
     const edgeId = tile.edges[edge.top];
     tile.edges[edge.top] = tile.edges[edge.bottom];
     tile.edges[edge.bottom] = edgeId;
+    return tile;
+  };
+
+  /**
+   * Rota 90 grados en el sentido horario
+   * @param tile
+   */
+  private rotate = (tile: Tile): Tile => {
+    tile = this.tiles.find((t) => t.id == tile.id);
+    const rotatedContent: string[] = [];
+    for (let column = 0; column < tile.content[0].length; column++) {
+      rotatedContent.push(
+        tile.content
+          .map((l) => l[column])
+          .reverse()
+          .join("")
+      );
+    }
+    tile.content = rotatedContent;
+    for (let index = 4; index > 0; index--)
+      tile.edges[index] = tile.edges[index - 1];
+    tile.edges[0] = tile.edges[4];
+    tile.edges.pop();
     return tile;
   };
 
@@ -127,7 +153,7 @@ export class PuzzleSolver {
     const leftTile: Tile = this.tiles.find(
       (t) => t.position.x == x - 1 && t.position.y == y
     );
-    let upTile = this.tiles.find(
+    const upTile = this.tiles.find(
       (t) => t.position.x == x && t.position.y == y - 1
     );
 
@@ -171,18 +197,14 @@ export class PuzzleSolver {
     if (foundTile) {
       if (nonMatchingEdge > -1) {
         //Comporbar que el lado que debe ser unico lo es
-        if (!this.getOuterEdges().includes(foundTile.edges[nonMatchingEdge]))
-          if (nonMatchingEdge == edge.top || nonMatchingEdge == edge.bottom)
-            foundTile = this.flip(foundTile);
-          else foundTile = this.rotate(foundTile);
+        while (!this.getOuterEdges().includes(foundTile.edges[nonMatchingEdge]))
+          foundTile = this.rotate(foundTile);
       }
 
       //Si hay mas de un lado, comprobar que la ficha esta orientada correctamente
       matchingEdges.forEach((matchingEdge, index) => {
-        if (!(foundTile.edges[matchingEdge] == matchingEdgesIds[index]))
-          if (nonMatchingEdge == edge.top || nonMatchingEdge == edge.bottom)
-            foundTile = this.flip(foundTile);
-          else foundTile = this.rotate(foundTile);
+        while (foundTile.edges[matchingEdge] != matchingEdgesIds[index])
+          foundTile = this.rotate(foundTile);
       });
 
       console.log(`y:${y},x:${x},id:${foundTile.id}`);
@@ -210,12 +232,13 @@ export class PuzzleSolver {
     // por cada fila de piezas
     const rows = Math.sqrt(this.tiles.length);
     const rowsPerTile = this.tiles[0].content.length;
-    let content: string[] = [];
+    const content: string[] = [];
     for (let row = 0; row < rows; row++) {
       const tilesRow = this.tiles
         .filter((t) => t.position.y == row)
         .sort((a, b) => a.position.x - b.position.x);
-      tilesRow.map((t) => console.log(t.id));
+      const r = tilesRow.map((t) => t.id).join("\t");
+      console.log(r);
       for (let rowTile = 0; rowTile < rowsPerTile; rowTile++)
         content.push(tilesRow.map((t) => t.content[rowTile]).join(""));
     }
@@ -236,19 +259,21 @@ export class PuzzleSolver {
   };
 
   private solvePuzzle = () => {
+    //this.findSeed();
+    //return;
     let startTry = 0;
 
-    let x = 0,
+    let x = 1,
       y = 0;
-    let currentTile;
-    while (y * this.puzzleSide + x < this.tiles.length) {
+    let currentTile = this.findSeed();
+    currentTile.position.x = currentTile.position.y = 0;
+    while (y * this.puzzleSide + x < this.tiles.length - 1) {
       if (!currentTile) {
         //No hay pieza para seguir montando, probar otro inicio
-        console.log("No hay pieza, volviendo a empezar");
-        x = y = 0;
-        this.tiles.forEach((t) => (t.position.x = t.position.y = -1));
-        currentTile = this.findFirstTile(startTry++);
+        throw new Error("KK");
       }
+      currentTile = this.findMatch(x, y);
+
       //Colocamos de izquierda a derecha y arriba abajo
       currentTile.position.x = x++;
       currentTile.position.y = y;
@@ -257,8 +282,6 @@ export class PuzzleSolver {
         x = 0;
       }
 
-      currentTile = this.findMatch(x, y);
-
       console.log(
         "Encontradas:",
         this.tiles.filter((t) => t.position.x > -1).length + 1,
@@ -266,19 +289,51 @@ export class PuzzleSolver {
         this.tiles.length
       );
     }
+    currentTile.position.x = this.puzzleSide - 1;
+    currentTile.position.y = this.puzzleSide - 1;
   };
 
-  private findFirstTile = (startTry: number): Tile => {
+  /**
+   * Devuelve una de las cuatro piezas
+   * @param startTry Intento
+   */
+  private getFirstTile = (startTry: number): Tile => {
     //Devolvemos las piezad de las esquinas
     // try: 0 coo esta, 1 rotada, 2 rotada vertica
 
-    let cornerTile = this.getCornerTiles()[Math.floor(startTry / 3)];
-    if (startTry % 3 == 1) cornerTile = this.rotate(cornerTile);
+    let cornerTile = this.getCornerTiles()[Math.floor(startTry / 4)];
+    //rotada o rotada + flipped
+    if (startTry % 4 > 0) cornerTile = this.rotate(cornerTile);
 
-    if (startTry % 3 == 2) {
+    console.log("Probando primera pieza:", cornerTile.id, cornerTile.edges);
+    return cornerTile;
+  };
+
+  private findSeed = () => {
+    let found = false;
+    let corner = 0;
+
+    let cornerTile = this.getCornerTiles()[corner];
+    //Buscar los dos lados que no tiene coincidencia
+    let cornerOuterEdges = this.getOuterEdges().filter((o) =>
+      cornerTile.edges.includes(o)
+    );
+    //Colocarlos los lados sin coincidencia arriba(0) y a la izauierda(1)
+    while (
+      !(
+        (cornerTile.edges[edge.top] == cornerOuterEdges[0] ||
+          cornerTile.edges[edge.left] == cornerOuterEdges[0]) &&
+        (cornerTile.edges[edge.top] == cornerOuterEdges[1] ||
+          cornerTile.edges[edge.left] == cornerOuterEdges[1])
+      )
+    )
       cornerTile = this.rotate(cornerTile);
-      cornerTile = this.flip(cornerTile);
-    }
+
+    // //Buscar las dos piezas que coinciden con esta
+    // let matchingTiles = this.tiles.filter((t) =>
+    //   cornerTile.edges.includes(t.edges)
+    // );
+
     return cornerTile;
   };
 }
