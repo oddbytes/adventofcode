@@ -59,7 +59,6 @@ export class FoodAnalyzer {
       );
 
       const commonIngredients = this.intersect(foodsWidthAllergen);
-      //  console.log(allergen, commonIngredients);
       if (commonIngredients.length == 1) {
         //hemos dato con el ingrediente que contiene el alergeno
         //Eliminar el ingrediente de todas las comidas
