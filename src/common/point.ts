@@ -20,4 +20,6 @@ export class Point implements IPoint {
     this.y = this.x * Math.sin(rad) + this.y * Math.cos(rad);
     this.x = rotatedX;
   };
+
+  public toString = (): string => `${this.x},${this.y}`;
 }
