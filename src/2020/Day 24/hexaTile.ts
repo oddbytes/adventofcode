@@ -73,7 +73,7 @@ export class HexaTile {
   };
 
   /**
-   * Calcula el numero de baldosas adyacentes a una dado
+   * Calcula el numero de baldosas negras adyacentes a una dado
    * @param tile posicion de la baldosa
    */
   private blackAround = (tile: IPoint) => {
