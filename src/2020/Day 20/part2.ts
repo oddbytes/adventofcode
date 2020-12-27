@@ -1,12 +1,12 @@
 import { PuzzleSolver } from "./puzzleSolver";
 
 console.time("part2");
-const edgeDetector = new PuzzleSolver("src/2020/day 20/tiles.txt");
 
-const outerTiles = edgeDetector.getImage();
+const puzzleSolver = new PuzzleSolver("./tiles.txt");
 
-// console.log(
-//   "Answer:",
-//   outerTiles.map((t) => t.id).reduce((a, b) => (a *= b), 1)
-// );
+const puzzle = puzzleSolver.solvePuzzle();
+//Ver el puzzle montado
+//puzzle.content.forEach((l) => console.log(l));
+
+console.log("Answer:", puzzleSolver.getSeaRoughness(puzzle));
 console.timeEnd("part2");

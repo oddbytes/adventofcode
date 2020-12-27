@@ -1,5 +1,8 @@
 import * as fs from "fs";
 import { IPoint, Point } from "../../common/point";
+/**
+ * Representa la orientacion de cada lado de una pieza
+ */
 enum edge {
   top = 0,
   right = 1,
@@ -7,6 +10,9 @@ enum edge {
   left = 3,
 }
 
+/**
+ * Representa una piexa de puzzle
+ */
 type Tile = {
   id: number;
   edges: number[];
@@ -16,7 +22,13 @@ type Tile = {
 
 export class PuzzleSolver {
   public tiles: Tile[];
+  /** Indica la longitud del lado del puzzle en piezas (cuadrad) */
   private puzzleSide: number;
+  private monsterPattern = [
+    /..................#./,
+    /#....##....##....###/,
+    /.#..#..#..#..#..#.../,
+  ];
 
   constructor(tilesFile: string) {
     this.tiles = fs
@@ -70,6 +82,9 @@ export class PuzzleSolver {
     );
   };
 
+  /**
+   * Obtiene todos los identificadores de lados que corresponden a un borde (no tiene pareja)
+   */
   getOuterEdges = (): number[] => {
     const allEdges = this.allEdges();
 
@@ -94,8 +109,12 @@ export class PuzzleSolver {
 
   private allEdges = () => this.tiles.flatMap((t) => t.edges);
 
+  /**
+   *
+   * @param tile Da la vuelta a la pieza en horizontal
+   */
   private flipHorizontally = (tile: Tile): Tile => {
-    tile = this.tiles.find((t) => t.id == tile.id);
+    if (tile.id > 0) tile = this.tiles.find((t) => t.id == tile.id);
 
     tile.content = tile.content.map((l) => Array.from(l).reverse().join(""));
     const edgeId = tile.edges[edge.left];
@@ -104,6 +123,10 @@ export class PuzzleSolver {
     return tile;
   };
 
+  /**
+   * Da la vuelta a la pieza en vertical
+   * @param tile
+   */
   private flipVertically = (tile: Tile): Tile => {
     tile = this.tiles.find((t) => t.id == tile.id);
     tile.content = tile.content.reverse();
@@ -118,7 +141,7 @@ export class PuzzleSolver {
    * @param tile
    */
   private rotate = (tile: Tile): Tile => {
-    tile = this.tiles.find((t) => t.id == tile.id);
+    if (tile.id > 0) tile = this.tiles.find((t) => t.id == tile.id);
     const rotatedContent: string[] = [];
     for (let column = 0; column < tile.content[0].length; column++) {
       rotatedContent.push(
@@ -137,7 +160,7 @@ export class PuzzleSolver {
   };
 
   /**
-   *
+   * Encuentra una pieza que cuadre en la posicion indicada teniendo en cuenta sus adyacente y/o bordes
    * @param tile pieza a la que hay que encontrar una pareja
    */
   private findMatch = (x: number, y: number): Tile => {
@@ -161,10 +184,10 @@ export class PuzzleSolver {
       matchingEdges.push(edge.left);
       nonMatchingEdge = edge.top;
       matchingEdgesIds.push(leftTile.edges[edge.right]);
-    } else if (y == this.puzzleSide - 1) {
-      matchingEdges.push(edge.top);
-      matchingEdgesIds.push(upTile.edges[edge.bottom]);
-      nonMatchingEdge = edge.bottom;
+      // } else if (y == this.puzzleSide - 1) {
+      //   matchingEdges.push(edge.top);
+      //   matchingEdgesIds.push(upTile.edges[edge.bottom]);
+      //   nonMatchingEdge = edge.bottom;
     } else {
       //Lineas intremedias
       if (x == 0) {
@@ -188,41 +211,69 @@ export class PuzzleSolver {
       }
     }
 
-    // const lookForId = tile.edges[(lookForEdge + 2) % 4];
-
     let foundTile = this.tiles
       .filter((t) => t.position.x == -1) //no buscar en las ya encontradas
       .find((t) => matchingEdgesIds.every((id) => t.edges.includes(id)));
 
     if (foundTile) {
+      //Si hay mas de un lado, comprobar que la ficha cuadra con los lados correctos
+      while (foundTile.edges[matchingEdges[0]] != matchingEdgesIds[0])
+        foundTile = this.rotate(foundTile);
+      if (
+        matchingEdges.length > 1 &&
+        foundTile.edges[matchingEdges[1]] != matchingEdgesIds[1]
+      ) {
+        if (matchingEdges[1] == edge.top || matchingEdges[1] == edge.bottom)
+          foundTile = this.flipVertically(foundTile);
+        else foundTile = this.flipHorizontally(foundTile);
+      }
+
       if (nonMatchingEdge > -1) {
         //Comporbar que el lado que debe ser unico lo es
         while (!this.getOuterEdges().includes(foundTile.edges[nonMatchingEdge]))
-          foundTile = this.rotate(foundTile);
+          if (nonMatchingEdge == edge.top || nonMatchingEdge == edge.bottom)
+            foundTile = this.flipVertically(foundTile);
+          else foundTile = this.flipHorizontally(foundTile);
       }
-
-      //Si hay mas de un lado, comprobar que la ficha esta orientada correctamente
-      matchingEdges.forEach((matchingEdge, index) => {
-        while (foundTile.edges[matchingEdge] != matchingEdgesIds[index])
-          foundTile = this.rotate(foundTile);
-      });
-
-      console.log(`y:${y},x:${x},id:${foundTile.id}`);
     }
     return foundTile;
   };
 
-  public getImage = (): string[] => {
+  /**
+   * Devuelve el puzzle completo y orientado correctamente
+   */
+  public solvePuzzle = (): Tile => {
     //ordenar las piezas
-    this.solvePuzzle();
+    this.orderTiles();
 
     //eliminar los bordes de cada pieza
     this.cropTiles();
 
-    //generar la imagen comleta
+    //generar la imagen completa
     let puzzle = this.generateFinalTile();
+    puzzle = this.flipHorizontally(puzzle);
+    //encontrar monstruos, girar y dar la vuelta al puzzle final hasta
+    //que aparezcan
+    let rotation = 0;
+    while (this.findMonsters(puzzle) == 0 && rotation < 9) {
+      puzzle = this.rotate(puzzle);
+      if (rotation++ == 4) puzzle = this.flipHorizontally(puzzle);
+    }
 
-    puzzle.content.forEach((l) => console.log(l));
+    return puzzle;
+  };
+
+  /**
+   * Cuenta las casillas qe sn mar y no parte de un monstruo
+   * @param puzzle puzzle montado
+   */
+  public getSeaRoughness = (puzzle: Tile): number => {
+    const monsterTiles = 15 * this.findMonsters(puzzle);
+    const seaTiles = Array.from(puzzle.content.join()).reduce(
+      (a, b) => (a += b == "#" ? 1 : 0),
+      0
+    );
+    return seaTiles - monsterTiles;
   };
 
   /**
@@ -230,19 +281,17 @@ export class PuzzleSolver {
    */
   private generateFinalTile = (): Tile => {
     // por cada fila de piezas
-    const rows = Math.sqrt(this.tiles.length);
     const rowsPerTile = this.tiles[0].content.length;
     const content: string[] = [];
-    for (let row = 0; row < rows; row++) {
+    for (let row = 0; row < this.puzzleSide; row++) {
       const tilesRow = this.tiles
         .filter((t) => t.position.y == row)
         .sort((a, b) => a.position.x - b.position.x);
-      const r = tilesRow.map((t) => t.id).join("\t");
-      console.log(r);
+
       for (let rowTile = 0; rowTile < rowsPerTile; rowTile++)
         content.push(tilesRow.map((t) => t.content[rowTile]).join(""));
     }
-    return { id: 0, edges: [], position: null, content };
+    return { id: 0, edges: [0, 0, 0, 0], position: null, content };
   };
 
   /**
@@ -258,20 +307,16 @@ export class PuzzleSolver {
     });
   };
 
-  private solvePuzzle = () => {
-    //this.findSeed();
-    //return;
-    let startTry = 0;
-
+  /**
+   * Ordena las piezas para formar el puzzle final
+   * No garantiza que el obtenido este en posicion correcta (puede ser necesario girarlo y/o rotarlo)
+   */
+  private orderTiles = () => {
     let x = 1,
       y = 0;
     let currentTile = this.findSeed();
     currentTile.position.x = currentTile.position.y = 0;
-    while (y * this.puzzleSide + x < this.tiles.length - 1) {
-      if (!currentTile) {
-        //No hay pieza para seguir montando, probar otro inicio
-        throw new Error("KK");
-      }
+    while (y * this.puzzleSide + x < this.tiles.length) {
       currentTile = this.findMatch(x, y);
 
       //Colocamos de izquierda a derecha y arriba abajo
@@ -281,41 +326,21 @@ export class PuzzleSolver {
         y++;
         x = 0;
       }
-
-      console.log(
-        "Encontradas:",
-        this.tiles.filter((t) => t.position.x > -1).length + 1,
-        "de",
-        this.tiles.length
-      );
     }
     currentTile.position.x = this.puzzleSide - 1;
     currentTile.position.y = this.puzzleSide - 1;
   };
 
   /**
-   * Devuelve una de las cuatro piezas
-   * @param startTry Intento
+   * Orienta una de las piezas de las equinas de tal forma que sus lados
+   * sin coincidencia estén arriba y a la izquierda
+   * Esto no garantiza que el puzzle final sea corecto (puede haber que girarlo y rotarlo)
+   * pero sí que tenemos una pieza en la que podemos empezar a juntar por la derecha
    */
-  private getFirstTile = (startTry: number): Tile => {
-    //Devolvemos las piezad de las esquinas
-    // try: 0 coo esta, 1 rotada, 2 rotada vertica
-
-    let cornerTile = this.getCornerTiles()[Math.floor(startTry / 4)];
-    //rotada o rotada + flipped
-    if (startTry % 4 > 0) cornerTile = this.rotate(cornerTile);
-
-    console.log("Probando primera pieza:", cornerTile.id, cornerTile.edges);
-    return cornerTile;
-  };
-
   private findSeed = () => {
-    let found = false;
-    let corner = 0;
-
-    let cornerTile = this.getCornerTiles()[corner];
+    let cornerTile = this.getCornerTiles()[0];
     //Buscar los dos lados que no tiene coincidencia
-    let cornerOuterEdges = this.getOuterEdges().filter((o) =>
+    const cornerOuterEdges = this.getOuterEdges().filter((o) =>
       cornerTile.edges.includes(o)
     );
     //Colocarlos los lados sin coincidencia arriba(0) y a la izauierda(1)
@@ -329,11 +354,23 @@ export class PuzzleSolver {
     )
       cornerTile = this.rotate(cornerTile);
 
-    // //Buscar las dos piezas que coinciden con esta
-    // let matchingTiles = this.tiles.filter((t) =>
-    //   cornerTile.edges.includes(t.edges)
-    // );
-
     return cornerTile;
+  };
+
+  /**
+   * Buscar el patron del mostruo en filas contiguas.
+   * Da por hecho que no hay cuerpos centrales en la primera ni la ultima fila
+   * @param puzzle pieza unica con el contenido final
+   */
+  private findMonsters = (puzzle: Tile): number => {
+    return puzzle.content.reduce((monsters, line, index, content) => {
+      if (
+        this.monsterPattern[1].test(line) &&
+        this.monsterPattern[0].test(content[index - 1]) &&
+        this.monsterPattern[2].test(content[index + 1])
+      )
+        monsters += 1;
+      return monsters;
+    }, 0);
   };
 }
