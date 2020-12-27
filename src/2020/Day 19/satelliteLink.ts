@@ -16,7 +16,7 @@ export class SatelliteLink {
     this.rules = sections[0]
       .replace(/"/g, "")
       .split("\r\n")
-      .map((line, index) => {
+      .map((line) => {
         const parts = line.split(": ");
 
         return new Rule(parseInt(parts[0]), parts[1]);
@@ -32,7 +32,6 @@ export class SatelliteLink {
     while (this.rules.some((r) => /\d/.test(r.rule))) {
       //Buscar las reglas que solo contengan letras
       const decodedRules = this.rules.filter((r) => !/[\d]/.test(r.rule));
-      //console.log(decodedRules.length, "de", this.rules.length);
 
       const decodedIndexes = decodedRules.map((r) => r.index);
       //Buscar las reglas que referencien las anteriores
@@ -82,6 +81,11 @@ export class SatelliteLink {
     return true;
   };
 
+  /**
+   * Sustituye referencias por caracteres en reglas finales
+   * @param referencingRule
+   * @param referencedRulesIndexes
+   */
   private substituteRule(
     referencingRule: Rule,
     referencedRulesIndexes: number[]
@@ -98,6 +102,10 @@ export class SatelliteLink {
     this.findRuleByIndex(referencingRule.index).rule = rule.replace(/\s/g, "");
   }
 
+  /**
+   * Concatena dos reglas
+   * @param referencingRule
+   */
   private concatenateRule(referencingRule: Rule) {
     //La regla que referencia es una concatenacion
     let finalRuleParts: string[] = [];
@@ -158,44 +166,50 @@ export class SatelliteLink {
     ).rule = finalRuleParts.join("|");
   }
 
+  /**
+   * Inicializa manualmente las reglas recursivas
+   * Segun la definicion del porblema no hay que tratar de dar una solucion general
+   * ya que sería excesivamente complicado, por lo que una solucion especifica
+   * es aceptable
+   */
   public initRecursiveRules = (): void => {
     this.findRuleByIndex(8).rule = `(?:${this.findRuleByIndex(42).rule})+`;
 
-    // this.rules.find((r) => r.index == 11).rule = `(?:${
-    //   this.rules.find((r) => r.index == 42).rule
-    // })+(?:${this.rules.find((r) => r.index == 31).rule})+`;
+    const r11 =
+      "(?:42)(?:(?:42)(?:(?:42)(?:(?:42)(?:(?:42) (?:31))?(?:31))?(?:31))?(?:31))?(?:31)";
 
-    let r11 = "42(?:42(?:42(?:42 31)?31)?31)?31";
-    r11 =
-      "(?:42 31)|(?:42 42 31 31)|(?:42 42 42 31 31 31)|(?:42 42 42 42 31 31 31 31)";
-    r11 = "(?:42)+(?:31)+";
-    let r42 = this.findRuleByIndex(42).rule;
-    let r31 = this.findRuleByIndex(31).rule;
+    const r42 = this.findRuleByIndex(42).rule;
+    const r31 = this.findRuleByIndex(31).rule;
 
-    this.rules.find((r) => r.index == 11).rule = r11
+    this.findRuleByIndex(11).rule = r11
       .replace(/42/g, r42)
       .replace(/31/g, r31)
       .replace(/\s/g, "");
-
-    console.log(this.rules.find((r) => r.index == 11).rule);
   };
 
+  /**
+   * Devuelve el numero d emensajes validos segun las reglas
+   * @param part parte del puzzle (1|2)
+   */
   public getValidMessages = (part = 1): string[] => {
     if (part == 2) {
-      this.rules.find((r) => r.index == 8).rule = " 42 | 42 8";
-      this.rules.find((r) => r.index == 11).rule = " 42 31 | 42 11 31";
+      //reglas recursivas
+      this.findRuleByIndex(8).rule = " 42 | 42 8";
+      this.findRuleByIndex(11).rule = " 42 31 | 42 11 31";
     }
 
     if (!this.initRules()) {
+      //si el metodo devuelve false es poeque hay bucles en las reglas
+      //en ese caso inicializamos las reglas con bucles a mano
       this.initRecursiveRules();
       if (!this.initRules()) throw new Error("0 no lista");
     }
 
+    //generar la regla final
     const reRule0 = new RegExp(
       "^" + this.findRuleByIndex(0).rule.replace(/#/g, "|") + "$"
     );
 
-    //console.log(reRule0);
     return this.messages.filter((m) => reRule0.test(m));
   };
 }
