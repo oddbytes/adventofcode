@@ -4,6 +4,6 @@ const start = "iwrupvqb";
 let i = 0;
 let hash = "";
 while (!hash.startsWith("000000")) {
-  hash = Md5.hashStr(start + (i++).toString());
+  hash = Md5.hashStr(start + (i++).toString()).toString();
 }
 console.log(i - 1, hash);
