@@ -50,7 +50,7 @@ export class PasswordCalculator {
     }
   }
 
-  public calculateNext = () => {
+  public calculateNext = (): void => {
     //Sumar una al ultimo. Si es una z, poner a y sumar al siguiete
 
     this.password = this.increment(this.password, this.password.length - 1);

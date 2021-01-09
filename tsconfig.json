@@ -1,5 +1,4 @@
 ﻿{
-  
   "compileOnSave": true,
 
   "compilerOptions": {
@@ -7,7 +6,8 @@
     "module": "commonjs",
     "sourceMap": true,
     "removeComments": true,
-    
+    "resolveJsonModule": true,
+
     "lib": [
       "dom",
       "es2015.promise",
@@ -22,8 +22,6 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "noResolve": false,
-    "moduleResolution": "node",
-  
-
+    "moduleResolution": "node"
   }
 }
