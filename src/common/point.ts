@@ -8,7 +8,7 @@ export interface IPoint {
  * Implementa un objeto punto 2D con coordenadas x e y
  */
 export class Point implements IPoint {
-  constructor(public x: number, public y: number) {}
+  constructor(public x: number = 0, public y: number = 0) {}
 
   /**
    * Rota el punto respecto a 0,0
