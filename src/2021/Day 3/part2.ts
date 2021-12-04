@@ -1,5 +1,5 @@
 import * as fs from "fs";
-
+console.time("part2");
 const diagnostics = fs.readFileSync("./puzzle.txt", "utf8").split("\r\n");
 
 //Cuenta los bit 1 en cada posicion
@@ -30,3 +30,4 @@ const oxygen = parseInt(filter(diagnostics), 2);
 const co2 = parseInt(filter(diagnostics, 0, true), 2);
 
 console.log("Response:", oxygen * co2);
+console.timeEnd("part2");
