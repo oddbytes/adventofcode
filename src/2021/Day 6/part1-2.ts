@@ -10,8 +10,7 @@ fs.readFileSync("./puzzle.txt", "utf8")
   .forEach((elem) => ages[elem]++);
 
 const cycle = (ages: number[]): void => {
-  const newBorns = ages[0]; //fishes to born in this cycle
-  ages.shift();
+  const newBorns = ages.shift(); //fishes to born in this cycle
   ages[8] = newBorns;
   ages[6] += newBorns; //timer resets
 };
