@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 console.time("totalTime");
 
-// array cotaining number of fishes per age (index)
+// array containing number of fishes per age (index)
 const ages = new Array(9).fill(0);
 
 fs.readFileSync("./puzzle.txt", "utf8")
@@ -10,9 +10,8 @@ fs.readFileSync("./puzzle.txt", "utf8")
   .forEach((elem) => ages[elem]++);
 
 const cycle = (ages: number[]): void => {
-  const newBorns = ages.shift(); //fishes to born in this cycle
-  ages[8] = newBorns;
-  ages[6] += newBorns; //timer resets
+  ages[8] = ages.shift(); //fishes to born in this cycle
+  ages[6] += ages[8]; //timer resets
 };
 
 for (let day = 0; day < 80; day++) cycle(ages);
@@ -22,7 +21,7 @@ console.log(
   ages.reduce((a, b) => (a += b)) //sum of fishes of all ages
 );
 
-for (let day = 0; day < 256 - 80; day++) cycle(ages);
+for (let day = 0; day < 256 - 80; day++) cycle(ages); //keep growing
 
 console.log(
   "Response part 2:",
