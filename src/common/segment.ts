@@ -14,6 +14,14 @@ export interface ISegment {
    * Return the angle of this segment relative to the horizontal axis
    */
   diamondAngle: number;
+  /**
+   * Return the points which forms this segments. Valid for horizontal,vertical and 45 degrees segments
+   */
+  points: IPoint[];
+  /**
+   * Return the length of the segments. Valid for horizontal,vertical and 45 degrees segments
+   */
+  length: number;
 }
 
 export class Segment implements ISegment {
@@ -21,8 +29,11 @@ export class Segment implements ISegment {
   public end: IPoint = new Point(0, 0);
 
   constructor(start: IPoint, end: IPoint) {
-    this.start = start;
-    this.end = end;
+    // segments don't have orientation
+    // to simplify othe calculations, we take as start the end closest to 0 in x axis
+
+    this.start = start.x < end.x ? start : end;
+    this.end = start.x < end.x ? end : start;
   }
 
   /**
@@ -81,6 +92,43 @@ export class Segment implements ISegment {
       return dyl > 0
         ? this.start.y <= point.y && point.y <= this.end.y
         : this.end.y <= point.y && point.y <= this.start.y;
+    }
+  }
+
+  public toString = (): string =>
+    `${this.start.x},${this.start.y} -> ${this.end.x},${this.end.y}`;
+
+  get length(): number {
+    if (this.isVertical) return Math.abs(this.end.y - this.start.y) + 1;
+    return this.end.x - this.start.x + 1;
+  }
+
+  get points(): IPoint[] {
+    const startY = Math.min(this.start.y, this.end.y);
+    if (this.isHorizontal) {
+      return [...new Array(this.length)].map(
+        (_x, i) => new Point(this.start.x + i, this.start.y)
+      );
+    } else if (this.isVertical) {
+      return [...new Array(this.length)].map(
+        (_x, i) => new Point(this.start.x, startY + i)
+      );
+    } else {
+      const incrementY = this.start.y > this.end.y ? -1 : 1;
+      // return [...new Array(this.length)].map(
+      //   (_x, i) => new Point(this.start.x + i, this.start.y + i * incrementY)
+      // );
+      // faster with plain for:
+      const points: IPoint[] = [];
+
+      for (
+        let x = this.start.x, y = this.start.y;
+        x <= this.end.x;
+        x += 1, y += incrementY
+      ) {
+        points.push(new Point(x, y));
+      }
+      return points;
     }
   }
 }

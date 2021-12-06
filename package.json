@@ -5,12 +5,12 @@
   "main": "index.js",
   "dependencies": {
     "deepcopy": "^2.0.0",
-    "mathjs": "^6.2.5",
+    "mathjs": "^10.0.0",
     "moment": "^2.29.1",
     "ts-md5": "^1.2.7"
   },
   "devDependencies": {
-    "@types/mathjs": "^6.0.2",
+    "@types/mathjs": "^6.0.12",
     "@types/node": "^14.14.10",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",
