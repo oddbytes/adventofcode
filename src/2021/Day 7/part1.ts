@@ -14,3 +14,5 @@ const costs = positions.map((p, toIndex) =>
 
 console.log("Response", Math.min(...costs));
 console.timeEnd("part1");
+
+//https://es.wikipedia.org/wiki/N%C3%BAmero_triangular
