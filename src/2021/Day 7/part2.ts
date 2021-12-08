@@ -20,7 +20,7 @@ const movementCost = (distance: number) => {
 };
 
 //Brute force, calc all position costs
-const costs = positions.map((p, toIndex) =>
+const costs = positions.map((_p, toIndex) =>
   positions.reduce((a, b) => (a += movementCost(Math.abs(b - toIndex))), 0)
 );
 

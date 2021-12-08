@@ -8,7 +8,7 @@ const positions = fs
   .map((x) => parseInt(x));
 
 //Brute force, calc all position costs
-const costs = positions.map((p, toIndex) =>
+const costs = positions.map((_p, toIndex) =>
   positions.reduce((a, b) => (a += Math.abs(b - toIndex)), 0)
 );
 
