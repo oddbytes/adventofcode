@@ -22,3 +22,12 @@ export class Queue<T> {
 
   public toString = (): string => this.items.join();
 }
+
+export interface IBFSQueueNode<T> {
+  node: T;
+  visited: boolean;
+}
+
+export class BFSQueueNode<T> implements IBFSQueueNode<T> {
+  constructor(public node: T, public visited: boolean) {}
+}
