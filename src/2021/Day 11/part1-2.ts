@@ -87,7 +87,7 @@ console.time("part1");
 let total = 0;
 let firstSync = -1;
 let s = 0;
-//
+
 for (; s < 100; s++) total += step(octopuses);
 
 console.log("Answer 1:", total);
