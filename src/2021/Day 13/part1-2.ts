@@ -1,14 +1,7 @@
 import * as fs from "fs";
-import { IPoint } from "../../2019/Day 3/SegmentCalculator";
-import { Point } from "../../common/point";
+import { IPoint, Point } from "../../common/point";
 
 console.time("day13");
-
-interface INode {
-  name: string;
-  visited: number;
-  adjacentNodes: INode[];
-}
 
 const file = fs
   .readFileSync("./puzzle.txt", "utf8")
