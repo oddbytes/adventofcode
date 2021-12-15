@@ -35,6 +35,7 @@ for (let row = 0; row < 5; row++) {
 const graph = new Graph(risks);
 
 const astar = new AStar();
+console.time("a*");
 const route = astar.search(
   graph,
   graph.nodes.find((n) => n.point.x == 0 && n.point.y == 0),
@@ -42,6 +43,7 @@ const route = astar.search(
     (n) => n.point.x == risks[0].length - 1 && n.point.y == risks.length - 1
   )
 );
+console.timeEnd("a*");
 
 console.log("Answer:", route[route.length - 1].f);
 

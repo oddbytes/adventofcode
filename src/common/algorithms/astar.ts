@@ -1,6 +1,5 @@
 //Adapted from https://github.com/bgrins/javascript-astar/
 
-
 import { IPoint, Point } from "../point";
 
 export class GridNode {
@@ -16,7 +15,7 @@ export class GridNode {
   public toString = (): string => this.point.toString();
 
   //No tiene en cuenta diagonales. Si no habria que multiplicar el coste por raiz de 2
-  public getCost = (fromNeighbor?: GridNode) =>
+  public getCost = (fromNeighbor?: GridNode): number =>
     fromNeighbor &&
     fromNeighbor.point.x != this.point.x &&
     fromNeighbor.point.y != this.point.y
@@ -40,7 +39,6 @@ export class Graph {
   private grid: GridNode[][] = [];
   public nodes: GridNode[] = [];
   private diagonal = false;
-  private dirtyNodes: GridNode[] = [];
   constructor(gridIn: number[][], public options?: IGraphOptions) {
     options = options || { diagonal: this.diagonal, closest: false };
     this.diagonal = !!options.diagonal;
@@ -56,62 +54,56 @@ export class Graph {
     }
   }
 
-  public markDirty = (node: GridNode): void => {
-    this.dirtyNodes.push(node);
-  };
-
   public neighbors = (node: GridNode): GridNode[] => {
     const ret: GridNode[] = [];
-    const x = node.point.x;
-    const y = node.point.y;
-    const grid = this.grid;
+    const { x, y } = node.point;
 
     // West
-    if (grid[x - 1] && grid[x - 1][y]) {
-      ret.push(grid[x - 1][y]);
+    if (this.grid[x - 1]?.[y]) {
+      ret.push(this.grid[x - 1][y]);
     }
 
     // East
-    if (grid[x + 1] && grid[x + 1][y]) {
-      ret.push(grid[x + 1][y]);
+    if (this.grid[x + 1]?.[y]) {
+      ret.push(this.grid[x + 1][y]);
     }
 
     // South
-    if (grid[x] && grid[x][y - 1]) {
-      ret.push(grid[x][y - 1]);
+    if (this.grid[x]?.[y - 1]) {
+      ret.push(this.grid[x][y - 1]);
     }
 
     // North
-    if (grid[x] && grid[x][y + 1]) {
-      ret.push(grid[x][y + 1]);
+    if (this.grid[x]?.[y + 1]) {
+      ret.push(this.grid[x][y + 1]);
     }
 
     if (this.diagonal) {
       // Southwest
-      if (grid[x - 1] && grid[x - 1][y - 1]) {
-        ret.push(grid[x - 1][y - 1]);
+      if (this.grid[x - 1]?.[y - 1]) {
+        ret.push(this.grid[x - 1][y - 1]);
       }
 
       // Southeast
-      if (grid[x + 1] && grid[x + 1][y - 1]) {
-        ret.push(grid[x + 1][y - 1]);
+      if (this.grid[x + 1]?.[y - 1]) {
+        ret.push(this.grid[x + 1][y - 1]);
       }
 
       // Northwest
-      if (grid[x - 1] && grid[x - 1][y + 1]) {
-        ret.push(grid[x - 1][y + 1]);
+      if (this.grid[x - 1]?.[y + 1]) {
+        ret.push(this.grid[x - 1][y + 1]);
       }
 
       // Northeast
-      if (grid[x + 1] && grid[x + 1][y + 1]) {
-        ret.push(grid[x + 1][y + 1]);
+      if (this.grid[x + 1]?.[y + 1]) {
+        ret.push(this.grid[x + 1][y + 1]);
       }
     }
 
     return ret;
   };
 
-  public toString = () => {
+  public toString = (): string => {
     const graphString = [];
     const nodes = this.grid;
     for (let x = 0; x < nodes.length; x++) {
@@ -203,13 +195,14 @@ class BinaryHeap {
     const length = this.content.length;
     const element = this.content[n];
     const elemScore = this.scoreFunction(element);
+    let swap: number;
 
-    while (true) {
+    do {
       // Compute the indices of the child elements.
+      swap = null;
       const child2N = (n + 1) << 1;
       const child1N = child2N - 1;
       // This is used to store the new position of the element, if any.
-      let swap = null;
       let child1Score;
       // If the first child exists (is inside the array)...
       if (child1N < length) {
@@ -238,15 +231,14 @@ class BinaryHeap {
         this.content[swap] = element;
         n = swap;
       }
-      // Otherwise, we are done.
-      else {
-        break;
-      }
-    }
+    } while (swap != null);
   };
 }
 
 export class AStar {
+  /**
+   * Returns the GridNode[] from start to node
+   */
   public pathTo = (node: GridNode): GridNode[] => {
     let curr = node;
     const path: GridNode[] = [];
@@ -257,16 +249,12 @@ export class AStar {
     return path;
   };
   /**
-        * Perform an A* Search on a graph given a start and end node.
-        * @param {Graph} graph
-        * @param {GridNode} start
-        * @param {GridNode} end
-        * @param {Object} [options]
-        * @param {bool} [options.closest] Specifies whether to return the
-                   path to the closest node if the target is unreachable.
-        * @param {Function} [options.heuristic] Heuristic function (see
-        *          astar.heuristics).
-        */
+   * Perform an A* Search on a graph given a start and end node. Uses Manhattan distance as heuristics
+   * @param {Graph} graph
+   * @param {GridNode} start
+   * @param {GridNode} end
+   * @param {Object} [options]
+   */
   public search = (
     graph: Graph,
     start: GridNode,
@@ -277,7 +265,6 @@ export class AStar {
     let closestNode = start; // set the start node to be the closest if required
 
     start.h = start.point.manhattanDistanceTo(end.point);
-    graph.markDirty(start);
 
     openHeap.push(start);
 
@@ -318,7 +305,6 @@ export class AStar {
             neighbor.h || neighbor.point.manhattanDistanceTo(end.point);
           neighbor.g = gScore;
           neighbor.f = neighbor.g + neighbor.h;
-          graph.markDirty(neighbor);
           if (closest) {
             // If the neighbour is closer than the current closestNode or if it's equally close but has
             // a cheaper path than the current closest node then it becomes the closest node
