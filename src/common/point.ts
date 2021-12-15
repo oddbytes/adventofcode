@@ -2,6 +2,8 @@ export interface IPoint {
   x: number;
   y: number;
   rotate?(angle: number): void;
+  toString(): string;
+  manhattanDistanceTo(point: IPoint);
 }
 
 /**
@@ -22,4 +24,7 @@ export class Point implements IPoint {
   };
 
   public toString = (): string => `${this.x},${this.y}`;
+
+  public manhattanDistanceTo = (point: IPoint): number =>
+    Math.abs(this.x - point.x) + Math.abs(this.y - point.y);
 }
