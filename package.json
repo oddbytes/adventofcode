@@ -6,7 +6,7 @@
   "dependencies": {
     "deepcopy": "^2.0.0",
     "mathjs": "^10.0.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "ts-md5": "^1.2.7"
   },
   "devDependencies": {
