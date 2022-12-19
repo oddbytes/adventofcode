@@ -5,9 +5,12 @@
   "main": "index.js",
   "dependencies": {
     "deepcopy": "^2.0.0",
+    "i": "^0.3.7",
     "mathjs": "^10.0.0",
     "moment": "^2.29.2",
-    "ts-md5": "^1.2.7"
+    "npm": "^9.2.0",
+    "ts-md5": "^1.2.7",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/mathjs": "^6.0.12",
