@@ -1,5 +1,5 @@
 import * as fs from "fs";
-console.time("day1");
+console.time("day2");
 const calories = fs
   .readFileSync("./input.txt", "utf8")
   .split("\r\n\r\n")
@@ -26,4 +26,4 @@ console.log(
 
 console.timeEnd("part2");
 
-console.timeEnd("day1");
+console.timeEnd("day2");
