@@ -19,7 +19,7 @@
       "ES2020.String"
     ],
     "noUnusedParameters": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noImplicitReturns": true,
     "noResolve": false,
     "moduleResolution": "node"
