@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-console.time("day5");
+console.time("day6");
 const [stacksConfig, instructions] = fs
   .readFileSync("./input.txt", "utf8")
   .split("\n\n")
@@ -62,4 +62,4 @@ console.log(`Part2 response: ${stacks.map((s) => s[s.length - 1]).join("")}`);
 
 console.timeEnd("part2");
 
-console.timeEnd("day5");
+console.timeEnd("day6");
