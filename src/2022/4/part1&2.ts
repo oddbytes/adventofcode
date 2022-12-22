@@ -18,20 +18,27 @@ const contains = sections.filter(([firstSection, secondSection]) => {
     smallestSection = firstSection;
   }
 
-  //console.log(largestSection, smallestSection);
   return (
     largestSection[0] <= smallestSection[0] &&
     largestSection[1] >= smallestSection[1]
   );
 });
 
-//console.log(contains);
 console.log(`Part1 response: ${contains.length}`);
 
 console.timeEnd("part1");
+const range = (start, end) =>
+  Array.from(Array(end - start + 1).keys())
+    .map((x) => x + start)
+    .map(Number);
+const overlap = sections.filter(([firstSection, secondSection]) => {
+  const firstRange = range(firstSection[0], firstSection[1]);
+  const secondRange = range(secondSection[0], secondSection[1]);
+  return firstRange.some((s) => secondRange.includes(s));
+});
 console.time("part2");
 
-console.log(`Part2 response: `);
+console.log(`Part2 response: ${overlap.length}`);
 
 console.timeEnd("part2");
 
