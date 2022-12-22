@@ -1,64 +1,33 @@
 import * as fs from "fs";
 
 console.time("day6");
-const [stacksConfig, instructions] = fs
-  .readFileSync("./input.txt", "utf8")
-  .split("\n\n")
-  .map((p) => p.split("\n"));
+const stream = fs.readFileSync("./input.txt", "utf8");
 
-const getInitialStacks = () => {
-  const stackNumbers = stacksConfig[stacksConfig.length - 1]
-    .trimEnd()
-    .split(" ")
-    .map(Number);
-
-  const numberOfStacks = stackNumbers[stackNumbers.length - 1];
-
-  const stacks: string[][] = new Array(numberOfStacks - 1);
-  for (let i = 0; i < numberOfStacks; i++) stacks[i] = [];
-
-  for (let i = 0; i < stacksConfig.length - 1; i++)
-    for (let s = 0; s < numberOfStacks; s++)
-      if (stacksConfig[i][1 + s * 4] != " ")
-        stacks[s].push(stacksConfig[i][1 + s * 4]);
-
-  for (let i = 0; i < numberOfStacks; i++) stacks[i] = stacks[i].reverse();
-  return stacks;
-};
-
-let stacks = getInitialStacks();
-const re = /move (\d+) from (\d+) to (\d+)/;
-
-instructions.forEach((instruction) => {
-  const [_match, quantity, from, to] = re.exec(instruction);
-
-  for (let step = 0; step < parseInt(quantity); step++) {
-    const crate = stacks[parseInt(from) - 1].pop();
-    stacks[parseInt(to) - 1].push(crate);
+const part1 = (stream: string) => {
+  console.log(stream);
+  let position = 3;
+  //advance till last four chars are all dferent
+  let markerFound = false;
+  while (!markerFound && position < stream.length) {
+    position++;
+    console.log(position, stream.slice(position - 4, position));
+    markerFound = stream
+      .slice(position - 4, position)
+      .split("")
+      .every((c, i, segment) => segment.lastIndexOf(c) == i);
   }
-});
+  return position;
+};
 
 console.time("part1");
 
-console.log(`Part1 response: ${stacks.map((s) => s[s.length - 1]).join("")}`);
+console.log(`Part1 response: ${part1(stream)}`);
 
 console.timeEnd("part1");
 
 console.time("part2");
-stacks = getInitialStacks();
-instructions.forEach((instruction) => {
-  const [_match, quantity, from, to] = re.exec(instruction);
-  const fromStack = stacks[parseInt(from) - 1];
-  const numberOfCrates = parseInt(quantity);
 
-  const crates = fromStack.splice(
-    fromStack.length - numberOfCrates,
-    numberOfCrates
-  );
-  stacks[parseInt(to) - 1].push(...crates);
-});
-console.log(stacks);
-console.log(`Part2 response: ${stacks.map((s) => s[s.length - 1]).join("")}`);
+console.log(`Part2 response: `);
 
 console.timeEnd("part2");
 
