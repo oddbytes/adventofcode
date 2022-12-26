@@ -13,7 +13,7 @@ class Monkey {
 console.time("day11");
 const readMonkeys = () => {
   return fs
-    .readFileSync("./sample.txt", "utf8")
+    .readFileSync("./input.txt", "utf8")
     .split("\r\n\r\n")
     .map((monkeyNotes) => {
       const monkey = new Monkey();
@@ -34,7 +34,7 @@ const readMonkeys = () => {
 
 let monkeys = readMonkeys();
 
-const playRound = (ruleSet = 1) => {
+const playRound = (modulo = 1) => {
   monkeys.forEach((monkey) => {
     const numItems = monkey.startingItems.length;
     for (let i = 0; i < numItems; i++) {
@@ -46,7 +46,8 @@ const playRound = (ruleSet = 1) => {
       let newWorryLevel =
         monkey.operator == "*" ? worryLevel * operand : worryLevel + operand;
 
-      if (ruleSet == 1) newWorryLevel = Math.floor(newWorryLevel / 3);
+      if (modulo == 1) newWorryLevel = Math.floor(newWorryLevel / 3);
+      else newWorryLevel = newWorryLevel % modulo;
       const nextMonkey =
         newWorryLevel % monkey.testFactor == 0
           ? monkey.nextMonkeyTrue
@@ -83,19 +84,20 @@ const part1 = () => {
 
 const part2 = () => {
   monkeys = readMonkeys();
+  const modulo = monkeys.reduce((a, b) => a * b.testFactor, 1);
   for (let i = 0; i < 10000; i++) {
-    playRound(2);
-    if ((i + 1) % 1000 == 0 || i < 20) {
-      console.log(`============ROUND ${i + 1}============`);
-      monkeys.forEach((monkey, index) => {
-        console.log(`Monkey ${index}: ${monkey.startingItems.join(",")}`);
-      });
-      monkeys.forEach((monkey, index) => {
-        console.log(
-          `Monkey ${index} inspected items  ${monkey.inspections} times`
-        );
-      });
-    }
+    playRound(modulo);
+    // if ((i + 1) % 1000 == 0 || i < 20) {
+    //   console.log(`============ROUND ${i + 1}============`);
+    //   monkeys.forEach((monkey, index) => {
+    //     console.log(`Monkey ${index}: ${monkey.startingItems.join(",")}`);
+    //   });
+    //   monkeys.forEach((monkey, index) => {
+    //     console.log(
+    //       `Monkey ${index} inspected items  ${monkey.inspections} times`
+    //     );
+    //   });
+    // }
   }
   const inspections = monkeys
     .map((monkey) => monkey.inspections)
