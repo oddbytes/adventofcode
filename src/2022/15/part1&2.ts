@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { re } from "mathjs";
 import { Point } from "../../common/point";
 let mD = 0;
 console.time("day15");
@@ -68,14 +69,75 @@ const coverage = (sensorMap: SensorPair[], y) => {
   return coveredPoints;
 };
 
+const isPointCovered = (sensorMap: SensorPair[], point: Point) =>
+  sensorMap.some(
+    (sensor) => sensor.sensor.manhattanDistanceTo(point) <= sensor.distance
+  );
+
+const getPointsOutOfRangeForSensor = (
+  sensor: SensorPair,
+  maxCoordinate: number
+) => {
+  console.time("getPointsOutOfRangeForSensor");
+  const points: Set<string> = new Set();
+  let xOffset = 0;
+  let y = sensor.sensor.y - sensor.distance - 1;
+  if (y < 0) y = 0;
+  for (
+    ;
+    y <= sensor.sensor.y + sensor.distance + 1 && y <= maxCoordinate;
+    y++
+  ) {
+    if (sensor.sensor.x + xOffset <= maxCoordinate)
+      points.add(`${sensor.sensor.x + xOffset},${y}`);
+
+    if (xOffset > 0 && sensor.sensor.x - xOffset > 0)
+      points.add(`${sensor.sensor.x - xOffset},${y}`);
+
+    if (y < sensor.sensor.y) xOffset++;
+    else xOffset--;
+  }
+  console.timeEnd("getPointsOutOfRangeForSensor");
+  return points;
+};
+
 const part1 = () => {
   const sensors = parseSensors();
+  //return coverage(sensors, 10);
 
   return coverage(sensors, 2000000);
 };
 
 const part2 = () => {
-  return 0;
+  const sensors = parseSensors();
+  let distressBeacon: Point;
+  for (let i = 0; i < sensors.length; i++) {
+    console.log(sensors[i].sensor.toString(), sensors[i].distance);
+    const pointsToCheck = getPointsOutOfRangeForSensor(sensors[i], 4000000);
+    //getPointsOutOfRangeForSensor(sensors[i], 20)
+    for (const coord of pointsToCheck) {
+      const [x, y] = coord.split(",").map(Number);
+      // const point = new Point(
+      //   parseInt(coord.split(",")[0]),
+      //   parseInt(coord.split(",")[1])
+      // );
+
+      if (
+        !sensors.some(
+          (sensor) =>
+            sensor.sensor.manhattanDistanceToCoordinates(x, y) <=
+            sensor.distance
+        )
+      ) {
+        distressBeacon = new Point(x, y);
+        break;
+      }
+    }
+    // pointsToCheck.
+    // distressBeacon =    pointsToCheck.find((p) => !isPointCovered(sensors, p));
+    if (distressBeacon) break;
+  }
+  return distressBeacon.x * 4000000 + distressBeacon.y;
 };
 
 console.time("part1");

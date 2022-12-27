@@ -4,6 +4,7 @@ export interface IPoint {
   rotate?(angle: number): void;
   toString(): string;
   manhattanDistanceTo(point: IPoint);
+  manhattanDistanceToCoordinates(x: number, y: number);
 }
 
 /**
@@ -27,4 +28,7 @@ export class Point implements IPoint {
 
   public manhattanDistanceTo = (point: IPoint): number =>
     Math.abs(this.x - point.x) + Math.abs(this.y - point.y);
+
+  public manhattanDistanceToCoordinates = (x: number, y: number): number =>
+    Math.abs(this.x - x) + Math.abs(this.y - y);
 }
