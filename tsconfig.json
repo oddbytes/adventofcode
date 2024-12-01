@@ -2,22 +2,22 @@
   "compileOnSave": true,
 
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2023",
     "module": "commonjs",
     "sourceMap": true,
     "removeComments": true,
     "resolveJsonModule": true,
 
-    "lib": [
-      "dom",
-      "es2015.promise",
-      "es5",
-      "es6",
-      "ES2016",
-      "ES2017.String",
-      "ES2019",
-      "ES2020.String"
-    ],
+    // "lib": [
+    //   "dom",
+    //   "es2015.promise",
+    //   "es5",
+    //   "es6",
+    //   "ES2016",
+    //   "ES2017.String",
+    //   "ES2019",
+    //   "ES2020.String"
+    // ],
     "noUnusedParameters": true,
     "noUnusedLocals": false,
     "noImplicitReturns": true,

@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as moment from "moment";
 
 export class Log {
-  constructor(public date: moment, public asleep: "up" | "asleep") {}
+  constructor(public date: moment.Moment, public asleep: "up" | "asleep") {}
 }
 
 export class LogReader {
