@@ -39,58 +39,31 @@ const exitRoutePositions = map.getExitRoute(
 guard.position = initialGuardPosition;
 guard.direction = initialGuardHeading;
 
-//Check all positions of the exit route for a new obtacle, except guard initial position and current obstacles positions
-
+//Check all DIFFERENT positions of the exit route for a new obtacle, except guard initial position and current obstacles positions
+//This is 10x faster than checkimg ALL maps positions
 let potentialLoopPositions = 0;
-// [...exitRoutePositions].forEach((exitRoutePosition, index) => {
-//   if (index > 0) {
-//     //Ignore initial guard pos
-//     obstaclesPositions.add(exitRoutePosition.split("*")[0]);
-//     const positions = map.getExitRoute(guard, obstaclesPositions, dimensions);
-//     // console.log(
-//     //   "Adding obstacle at ",
-//     //   exitRoutePosition.split("*")[0],
-//     //   positions?.size
-//     // );
-//     // if (positions) [...positions].forEach((p) => console.log(p));
-//     if (positions === null) potentialLoopPositions++;
-//     // else console.log(positions.size);
-//     obstaclesPositions.delete(exitRoutePosition.split("*")[0]);
-//     //reset guard to next position of the original exit route
-//     let tokens = exitRoutePosition.split("*");
-//     guard.direction = parseInt(tokens[1]);
-//     tokens = tokens[0].split(",");
-//     guard.position.x = parseInt(tokens[0]);
-//     guard.position.y = parseInt(tokens[1]);
-//   }
-// });
-
-//Brute force> check  ALL positions in the map putting an obstacle
-for (let row = 0; row < dimensions[0]; row++) {
-  for (let col = 0; col < dimensions[1]; col++) {
-    const currentPosition = new Point(row, col);
-    if (
-      !obstaclesPositions.has(currentPosition.toString()) &&
-      currentPosition.toString() !== initialGuardPosition.toString()
-    ) {
-      obstaclesPositions.add(currentPosition.toString());
-
-      const positions = map.getDifferentVisitedPositions(
-        guard,
-        obstaclesPositions,
-        dimensions
-      );
-      //console.log("Adding obstacle at ", currentPosition.toString(), positions);
-
-      if (positions === -1) potentialLoopPositions++;
-      obstaclesPositions.delete(currentPosition.toString());
-      //reset guard
-      guard.direction = Direction.UP;
-      guard.position = initialGuardPosition;
+const testedPositions = new Set<string>();
+[...exitRoutePositions].forEach((exitRoutePosition, index) => {
+  const position = exitRoutePosition.split("*")[0];
+  if (index > 0) {
+    //Ignore initial guard pos
+    if (!testedPositions.has(position)) {
+      //do not retry the same position with different guard headings
+      obstaclesPositions.add(position);
+      const positions = map.getExitRoute(guard, obstaclesPositions, dimensions);
+      if (positions === null) potentialLoopPositions++;
+      obstaclesPositions.delete(position);
+      testedPositions.add(position);
     }
+    //set guard to next position of the original exit route
+    let tokens = exitRoutePosition.split("*");
+    guard.direction = parseInt(tokens[1]);
+    tokens = tokens[0].split(",");
+    guard.position.x = parseInt(tokens[0]);
+    guard.position.y = parseInt(tokens[1]);
   }
-}
+});
 
-console.log(`Answer: ${potentialLoopPositions}`); //last position is not valid
+console.log(`Answer: ${potentialLoopPositions}`);
 console.timeEnd("part");
 console.timeEnd("day");
