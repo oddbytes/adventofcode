@@ -60,33 +60,4 @@ export class MapRouting {
       }
     }
   };
-
-  public getDifferentVisitedPositions = (
-    guard: Guard,
-    obstaclesPositions: Set<string>,
-    dimensions: number[]
-  ) => {
-    let positions = new Set<string>(); //Use a set to count only different poistions
-    positions.add(guard.position.toString());
-    while (
-      guard.position.x > -1 &&
-      guard.position.x < dimensions[0] &&
-      guard.position.y > -1 &&
-      guard.position.y < dimensions[1]
-    ) {
-      const nextPosition = new Point(
-        guard.position.x + direction[guard.direction][0],
-        guard.position.y + direction[guard.direction][1]
-      );
-      if (obstaclesPositions.has(nextPosition.toString()))
-        guard.direction = (guard.direction + 1) % 4; //turn, restart enum if direction>3
-      else {
-        if (positions.has(nextPosition.toString() + "," + guard.direction))
-          return -1; //lop detected
-        guard.position = nextPosition;
-        positions.add(guard.position.toString() + "," + guard.direction);
-      }
-    }
-    return positions.size - 1;
-  };
 }
