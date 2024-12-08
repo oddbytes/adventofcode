@@ -11,7 +11,10 @@ export interface IPoint {
  * Implementa un objeto punto 2D con coordenadas x e y
  */
 export class Point implements IPoint {
-  constructor(public x: number = 0, public y: number = 0) {}
+  constructor(
+    public x: number = 0,
+    public y: number = 0
+  ) {}
 
   /**
    * Rota el punto respecto a 0,0
@@ -31,4 +34,7 @@ export class Point implements IPoint {
 
   public manhattanDistanceToCoordinates = (x: number, y: number): number =>
     Math.abs(this.x - x) + Math.abs(this.y - y);
+
+  public equals = (point: IPoint): boolean =>
+    this.x === point.x && this.y === point.y;
 }
