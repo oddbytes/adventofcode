@@ -11,15 +11,15 @@ export interface ISegment {
   isVertical: boolean;
   containsPoint(point: IPoint);
   /**
-   * Return the angle of this segment relative to the horizontal axis
+   * Returns the angle of this segment relative to the horizontal axis
    */
   diamondAngle: number;
   /**
-   * Return the points which forms this segments. Valid for horizontal,vertical and 45 degrees segments
+   * Returns the points which forms this segments. Valid for horizontal,vertical and 45 degrees segments
    */
   points: IPoint[];
   /**
-   * Return the length of the segments. Valid for horizontal,vertical and 45 degrees segments
+   * Returns the length of the segments. Valid for horizontal,vertical and 45 degrees segments
    */
   length: number;
 }
@@ -54,8 +54,8 @@ export class Segment implements ISegment {
           ? y / (x + y)
           : 1 - x / (-x + y)
         : x < 0
-        ? 2 - y / (-x - y)
-        : 3 + x / (x - y);
+          ? 2 - y / (-x - y)
+          : 3 + x / (x - y);
     return dia;
   }
 
