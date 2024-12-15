@@ -7,17 +7,6 @@
     "sourceMap": true,
     "removeComments": true,
     "resolveJsonModule": true,
-
-    // "lib": [
-    //   "dom",
-    //   "es2015.promise",
-    //   "es5",
-    //   "es6",
-    //   "ES2016",
-    //   "ES2017.String",
-    //   "ES2019",
-    //   "ES2020.String"
-    // ],
     "noUnusedParameters": true,
     "noUnusedLocals": false,
     "noImplicitReturns": true,

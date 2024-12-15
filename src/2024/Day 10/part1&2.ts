@@ -70,8 +70,7 @@ const BFS = (
   // mark src tile as visited
   let trails = 0;
   while (queue.length > 0) {
-    const currentNode = queue.shift();
-    const { tile: currentTile } = currentNode;
+    const { tile: currentTile } = queue.shift();
     // If we have reached the destination cell,we are done
     if (
       dests.some(
