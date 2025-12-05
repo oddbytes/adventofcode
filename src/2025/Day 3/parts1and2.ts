@@ -33,7 +33,7 @@ banks.forEach((bank) => {
     currPos = bank.indexOf(maxInRange, currPos) + 1;
     joltage += maxInRange * 10 ** (12 - paso);
   }
-  // console.log(`Joltage final para el banco: ${joltage}`);
+
   solucion += joltage;
 });
 console.timeEnd("Tiempo de ejecucion parte 2");
